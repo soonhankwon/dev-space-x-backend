@@ -1,10 +1,12 @@
-package soon.devspacexbackend.user.application;
+package soon.devspacexbackend.user.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import soon.devspacexbackend.user.application.UserService;
+import soon.devspacexbackend.user.presentation.dto.UserSignupReqDto;
 import soon.devspacexbackend.user.presentation.dto.UserSignupResDto;
 
 
@@ -13,6 +15,8 @@ import soon.devspacexbackend.user.presentation.dto.UserSignupResDto;
 @RequestMapping("/users")
 @Tag(name = "유저관련 API")
 public class UserController {
+
+    private final UserService userServiceImpl;
 
     @PostMapping("/signup")
     @Operation(summary = "회원 가입 API")
