@@ -12,8 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ContentPayTypeTest {
 
     @Test
+    @DisplayName("타입과 다크매터 매치가 안될시 예외 처리 테스트")
     void validateTypeMatchDarkMatter() {
-
+        assertThatThrownBy(() -> ContentPayType.FREE.validateTypeMatchDarkMatter(100))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ContentPayType.PAY.validateTypeMatchDarkMatter(99))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ContentPayType.PAY.validateTypeMatchDarkMatter(501))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
