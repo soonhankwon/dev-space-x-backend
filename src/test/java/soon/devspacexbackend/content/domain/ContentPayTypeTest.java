@@ -12,8 +12,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ContentPayTypeTest {
 
     @Test
-    @DisplayName("컨텐츠 타입이 유료일때 다크매터 검증 예외처리 테스트")
     void validateTypeMatchDarkMatter() {
+
+    }
+
+    @Test
+    @DisplayName("컨텐츠 타입이 무료일때 다크매터 검증 예외처리 테스트")
+    void validateFreeTypeDarkMatter() {
+        ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
+                "DEV", "SPACE X", ContentPayType.FREE,
+                100);
+        try {
+            new Content(dto1);
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).isEqualTo("invalid matter value");
+        }
+    }
+
+    @Test
+    @DisplayName("컨텐츠 타입이 유료일때 다크매터 검증 예외처리 테스트")
+    void validatePayTypeDarkMatter() {
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
                 "DEV", "SPACE X", ContentPayType.PAY,
                 99);
