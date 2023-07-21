@@ -7,11 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import soon.devspacexbackend.content.application.ContentService;
-import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
-import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
-import soon.devspacexbackend.content.presentation.dto.ContentRegisterResDto;
+import soon.devspacexbackend.content.presentation.dto.*;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.web.session.SessionConst;
 
@@ -31,8 +30,7 @@ public class ContentController {
     @Operation(summary = "컨텐츠 등록 API")
     @ResponseStatus(HttpStatus.CREATED)
     public ContentRegisterResDto registerContent(@RequestBody ContentRegisterReqDto dto, HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        User loginUser = (User) session.getAttribute(SessionConst.LOGIN_USER);
+        User loginUser = getLoginUserBySession(request);
         contentServiceImpl.registerContent(dto, loginUser);
         return new ContentRegisterResDto();
     }
@@ -49,8 +47,24 @@ public class ContentController {
     @Operation(summary = "컨텐츠 상세 조회 API")
     @ResponseStatus(HttpStatus.OK)
     public ContentGetResDto getContent(@PathVariable Long contentId, HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        User loginUser = (User) session.getAttribute(SessionConst.LOGIN_USER);
+        User loginUser = getLoginUserBySession(request);
         return contentServiceImpl.getContent(contentId, loginUser);
+    }
+
+    @PatchMapping("/{contentId}")
+    @Operation(summary = "컨텐츠 업데이트 API")
+    @ResponseStatus(HttpStatus.OK)
+    public ContentUpdateResDto updateContent(@PathVariable Long contentId, @Validated @RequestBody ContentUpdateReqDto dto, HttpServletRequest request) {
+        User loginUser = getLoginUserBySession(request);
+        contentServiceImpl.updateContent(contentId, dto, loginUser);
+        return new ContentUpdateResDto();
+    }
+
+    private User getLoginUserBySession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if(session == null) {
+            throw new RuntimeException("session invalid");
+        }
+        return (User) session.getAttribute(SessionConst.LOGIN_USER);
     }
 }
