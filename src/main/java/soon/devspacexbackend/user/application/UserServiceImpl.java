@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.infrastructure.persistence.UserRepository;
+import soon.devspacexbackend.user.presentation.dto.UserResignReqDto;
 import soon.devspacexbackend.user.presentation.dto.UserSignupReqDto;
 
 @Slf4j
@@ -19,5 +20,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void signupUser(UserSignupReqDto dto) {
         userRepository.save(new User(dto));
+    }
+
+    @Override
+    @Transactional
+    public void resignUser(UserResignReqDto dto, User loginUser) {
+        userRepository.delete(loginUser);
     }
 }
