@@ -3,6 +3,8 @@ package soon.devspacexbackend.user.domain;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import soon.devspacexbackend.content.domain.Content;
+import soon.devspacexbackend.review.domain.Review;
+import soon.devspacexbackend.user.presentation.dto.UserHistoryGetContentResDto;
 import soon.devspacexbackend.user.presentation.dto.UserSignupReqDto;
 import soon.devspacexbackend.utils.CreatedTimeEntity;
 
@@ -35,6 +37,9 @@ public class User extends CreatedTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserContent> userContents;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> review;
+
     public User(UserSignupReqDto dto) {
         this.email = dto.getEmail();
         this.name = dto.getName();
@@ -53,5 +58,13 @@ public class User extends CreatedTimeEntity {
 
     public Long getId() {
         return this.id;
+    }
+
+    public void earn(Integer darkMatter) {
+        this.darkMatter += darkMatter;
+    }
+
+    public UserHistoryGetContentResDto writeUserInfoUserHistoryGetContentResDto() {
+        return new UserHistoryGetContentResDto(this.email, this.userType, null);
     }
 }
