@@ -3,11 +3,19 @@ package soon.devspacexbackend.user.presentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import soon.devspacexbackend.user.application.UserService;
+import soon.devspacexbackend.user.domain.User;
+import soon.devspacexbackend.user.presentation.dto.UserResignReqDto;
+import soon.devspacexbackend.user.presentation.dto.UserResignResDto;
 import soon.devspacexbackend.user.presentation.dto.UserSignupReqDto;
 import soon.devspacexbackend.user.presentation.dto.UserSignupResDto;
+import soon.devspacexbackend.web.session.SessionConst;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 
 @RestController
@@ -24,5 +32,17 @@ public class UserController {
     public UserSignupResDto signupUser(@RequestBody UserSignupReqDto dto) {
         userServiceImpl.signupUser(dto);
         return new UserSignupResDto();
+    }
+
+    @PostMapping("/resign")
+    @Operation(summary = "회원 탈퇴 API")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResignResDto resignUser(@RequestBody UserResignReqDto dto, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        User loginUser = (User) session.getAttribute(SessionConst.LOGIN_USER);
+
+        userServiceImpl.resignUser(dto, loginUser);
+        session.invalidate();
+        return new UserResignResDto();
     }
 }
