@@ -2,6 +2,7 @@ package soon.devspacexbackend.user.domain;
 
 import lombok.NoArgsConstructor;
 import soon.devspacexbackend.content.domain.Content;
+import soon.devspacexbackend.user.presentation.dto.UserHistoryGetContentResDto;
 import soon.devspacexbackend.utils.BaseTimeEntity;
 
 import javax.persistence.*;
@@ -29,5 +30,15 @@ public class UserContent extends BaseTimeEntity {
         this.user = user;
         this.content = content;
         this.type = type;
+    }
+
+    public User getUser() {
+        return this.user;
+    }
+
+    public UserHistoryGetContentResDto convertUserHistoryGetContentResDto() {
+        UserHistoryGetContentResDto dto = user.writeUserInfoUserHistoryGetContentResDto();
+        dto.setLastViewedDateTime(this.getModifiedAt());
+        return dto;
     }
 }
