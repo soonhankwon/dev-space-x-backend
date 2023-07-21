@@ -1,5 +1,7 @@
 package soon.devspacexbackend.content.domain;
 
+import soon.devspacexbackend.exception.CustomErrorCode;
+
 public enum ContentPayType {
 
     FREE, PAY;
@@ -13,12 +15,12 @@ public enum ContentPayType {
 
     private void validateFreeTypeDarkMatter(Integer darkMatter) {
         if(!isFreeTypeDarkMatterValid(darkMatter))
-            throw new IllegalArgumentException("invalid matter value");
+            throw new IllegalArgumentException(CustomErrorCode.FREE_TYPE_MATTER_INVALID.getMessage());
     }
 
     private void validatePayTypeDarkMatter(Integer darkMatter) {
         if(!isPayTypeDarkMatterValid(darkMatter))
-            throw new IllegalArgumentException("invalid matter value");
+            throw new IllegalArgumentException(CustomErrorCode.PAY_TYPE_MATTER_INVALID.getMessage());
     }
 
     private boolean isFreeTypeDarkMatterValid(Integer darkMatter) {
