@@ -1,13 +1,18 @@
 package soon.devspacexbackend.content.domain;
 
 import lombok.NoArgsConstructor;
+import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
+import soon.devspacexbackend.series.domain.Series;
+import soon.devspacexbackend.user.domain.UserContent;
+import soon.devspacexbackend.utils.BaseTimeEntity;
 
 import javax.persistence.*;
+import java.util.List;
 
 @NoArgsConstructor
 @Entity
-public class Content {
+public class Content extends BaseTimeEntity {
 
     public static final int FREE_MATTER_VALUE = 0;
     public static final int MIN_PAY_MATTER_VALUE = 100;
@@ -26,11 +31,38 @@ public class Content {
 
     private Integer darkMatter;
 
+    @ManyToOne
+    @JoinColumn(name = "series_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Series series;
+
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserContent> userContents;
+
     public Content(ContentRegisterReqDto dto) {
         this.title = dto.getTitle();
         this.text = dto.getText();
         this.payType = dto.getPayType();
         payType.validateTypeMatchDarkMatter(dto.getDarkMatter());
         this.darkMatter = dto.getDarkMatter();
+    }
+
+    public Integer getDarkMatter() {
+        return this.darkMatter;
+    }
+
+    public ContentGetResDto convertContentGetResDto(ContentGetType type) {
+        //TODO MODIFY AFTER COMPLETE SERIES DOMAIN LOGIC
+        if (this.series == null) {
+            return new ContentGetResDto(this.id, this.title, this.text.substring(0, 11), this.payType, this.darkMatter, "NO SERIES", this.getCreatedAt(), this.getModifiedAt());
+        }
+
+        if (type == ContentGetType.PREVIEW)
+            return new ContentGetResDto(this.id, this.title, this.text.substring(0, 11), this.payType, this.darkMatter, this.series.getName(), this.getCreatedAt(), this.getModifiedAt());
+        else
+            return new ContentGetResDto(this.id, this.title, this.text, this.payType, this.darkMatter, this.series.getName(), this.getCreatedAt(), this.getModifiedAt());
+    }
+
+    public boolean isTypePay() {
+        return this.payType == ContentPayType.PAY;
     }
 }
