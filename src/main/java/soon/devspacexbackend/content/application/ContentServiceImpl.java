@@ -12,11 +12,13 @@ import soon.devspacexbackend.content.infrastructure.persistence.ContentRepositor
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 import soon.devspacexbackend.content.presentation.dto.ContentUpdateReqDto;
+import soon.devspacexbackend.darkmatter.domain.ChangeType;
+import soon.devspacexbackend.darkmatter.domain.DarkMatterHistory;
+import soon.devspacexbackend.darkmatter.infrastructure.persistence.DarkMatterHistoryRepository;
 import soon.devspacexbackend.user.domain.BehaviorType;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.domain.UserContent;
 import soon.devspacexbackend.user.infrastructure.persistence.UserContentRepository;
-import soon.devspacexbackend.user.infrastructure.persistence.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,8 +30,8 @@ import java.util.stream.Collectors;
 public class ContentServiceImpl implements ContentService {
 
     private final ContentRepository contentRepository;
-    private final UserRepository userRepository;
     private final UserContentRepository userContentRepository;
+    private final DarkMatterHistoryRepository darkMatterHistoryRepository;
 
     @Override
     @Transactional
@@ -54,29 +56,35 @@ public class ContentServiceImpl implements ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 컨텐츠를 찾을수 없습니다."));
 
-        User user = userRepository.findById(loginUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("not exist user in db assertNot"));
-
-        if (userContentRepository.existsUserContentByContentAndUserAndType(content, user, BehaviorType.POST)) {
-            Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, user, BehaviorType.GET);
+        if (userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
+            Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET);
             if(optionalUserContent.isPresent()) {
                 optionalUserContent.get().updateModifiedAt();
             } else {
-                userContentRepository.save(new UserContent(user, content, BehaviorType.GET));
+                userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
             }
             return content.convertContentGetResDto(ContentGetType.VIEW);
         }
 
-        if (userContentRepository.existsUserContentByContentAndUserAndType(content, user, BehaviorType.GET)) {
-            UserContent userContent = userContentRepository.findUserContentByContentAndUserAndType(content, user, BehaviorType.GET)
+        if (userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)) {
+            UserContent userContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)
                     .orElseThrow(() -> new RuntimeException("not exist"));
             userContent.updateModifiedAt();
             return content.convertContentGetResDto(ContentGetType.VIEW);
         }
 
         if (content.isTypePay()) {
-            user.pay(content);
-            userContentRepository.save(new UserContent(user, content, BehaviorType.GET));
+            loginUser.pay(content);
+            darkMatterHistoryRepository.save(new DarkMatterHistory(loginUser, ChangeType.USE, content.getDarkMatter()));
+            //TODO 컨텐츠 제공자가 탈퇴했을 경우, 하지만 컨텐츠는 남아있을 경우 처리로직 필요
+            UserContent userContent = userContentRepository.findUserContentByContentAndType(content, BehaviorType.POST)
+                    .orElseThrow(() -> new RuntimeException("not exist content provider"));
+
+            userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
+
+            User contentProviderUser = userContent.getUser();
+            contentProviderUser.earn(content.getDarkMatter());
+            darkMatterHistoryRepository.save(new DarkMatterHistory(contentProviderUser, ChangeType.CHARGE, content.getDarkMatter()));
         }
         return content.convertContentGetResDto(ContentGetType.VIEW);
     }
@@ -87,13 +95,24 @@ public class ContentServiceImpl implements ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new IllegalArgumentException("content not exist"));
 
-        User user = userRepository.findById(loginUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("not exist user in db assertNot"));
-
-        if (!userContentRepository.existsUserContentByContentAndUserAndType(content, user, BehaviorType.POST)) {
+        if (!userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
             throw new IllegalArgumentException("not exist registered content by user");
         }
 
         content.update(dto);
+    }
+
+    @Override
+    @Transactional
+    public void deleteContent(Long contentId, User loginUser) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new IllegalArgumentException("content not exist"));
+
+        Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST);
+        if(optionalUserContent.isPresent()) {
+            contentRepository.delete(content);
+        } else {
+            throw new RuntimeException("not exist registered content by user");
+        }
     }
 }
