@@ -11,6 +11,7 @@ import soon.devspacexbackend.content.domain.ContentGetType;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
+import soon.devspacexbackend.content.presentation.dto.ContentUpdateReqDto;
 import soon.devspacexbackend.user.domain.BehaviorType;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.domain.UserContent;
@@ -18,6 +19,7 @@ import soon.devspacexbackend.user.infrastructure.persistence.UserContentReposito
 import soon.devspacexbackend.user.infrastructure.persistence.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,19 +51,49 @@ public class ContentServiceImpl implements ContentService {
     @Override
     @Transactional
     public ContentGetResDto getContent(Long contentId, User loginUser) {
-        try {
-            Content content = contentRepository.findById(contentId)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 컨텐츠를 찾을수 없습니다."));
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 컨텐츠를 찾을수 없습니다."));
 
-            User user = userRepository.findById(loginUser.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("not exist user in db assertNot"));;
-            if(content.isTypePay()) {
-                user.pay(content);
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new IllegalArgumentException("not exist user in db assertNot"));
+
+        if (userContentRepository.existsUserContentByContentAndUserAndType(content, user, BehaviorType.POST)) {
+            Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, user, BehaviorType.GET);
+            if(optionalUserContent.isPresent()) {
+                optionalUserContent.get().updateModifiedAt();
+            } else {
+                userContentRepository.save(new UserContent(user, content, BehaviorType.GET));
             }
             return content.convertContentGetResDto(ContentGetType.VIEW);
-        } catch (IllegalArgumentException e) {
-            log.error("FrontPage Content ID or DB Data problem", e);
-            throw e;
         }
+
+        if (userContentRepository.existsUserContentByContentAndUserAndType(content, user, BehaviorType.GET)) {
+            UserContent userContent = userContentRepository.findUserContentByContentAndUserAndType(content, user, BehaviorType.GET)
+                    .orElseThrow(() -> new RuntimeException("not exist"));
+            userContent.updateModifiedAt();
+            return content.convertContentGetResDto(ContentGetType.VIEW);
+        }
+
+        if (content.isTypePay()) {
+            user.pay(content);
+            userContentRepository.save(new UserContent(user, content, BehaviorType.GET));
+        }
+        return content.convertContentGetResDto(ContentGetType.VIEW);
+    }
+
+    @Override
+    @Transactional
+    public void updateContent(Long contentId, ContentUpdateReqDto dto, User loginUser) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new IllegalArgumentException("content not exist"));
+
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new IllegalArgumentException("not exist user in db assertNot"));
+
+        if (!userContentRepository.existsUserContentByContentAndUserAndType(content, user, BehaviorType.POST)) {
+            throw new IllegalArgumentException("not exist registered content by user");
+        }
+
+        content.update(dto);
     }
 }
