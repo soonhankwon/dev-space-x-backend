@@ -9,5 +9,6 @@ import lombok.Getter;
 @Schema(description = "로그인 응답 DTO")
 public final class LoginResDto {
 
+    @Schema(description = "로그인 성공 메세지", example = "로그인 성공")
     private final String message = "로그인 성공";
 }
