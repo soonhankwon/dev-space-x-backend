@@ -22,4 +22,10 @@ public class DarkMatterHistory extends CreatedTimeEntity {
     private ChangeType type;
 
     private Long darkMatter;
+
+    public DarkMatterHistory(User user, ChangeType type, Integer darkMatter) {
+        this.user = user;
+        this.type = type;
+        this.darkMatter = darkMatter.longValue();
+    }
 }
