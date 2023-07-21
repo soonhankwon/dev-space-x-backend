@@ -17,4 +17,6 @@ public interface ContentService {
     ContentGetResDto getContent(Long contentId, User loginUser);
 
     void updateContent(Long contentId, ContentUpdateReqDto dto, User loginUser);
+
+    void deleteContent(Long contentId, User loginUser);
 }
