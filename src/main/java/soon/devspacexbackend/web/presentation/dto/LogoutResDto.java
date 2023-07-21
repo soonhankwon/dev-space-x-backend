@@ -9,5 +9,6 @@ import lombok.Getter;
 @Schema(description = "로그아웃 응답 DTO")
 public final class LogoutResDto {
 
+    @Schema(description = "로그아웃 성공 메세지", example = "로그아웃 성공")
     private final String message = "로그아웃 성공";
 }
