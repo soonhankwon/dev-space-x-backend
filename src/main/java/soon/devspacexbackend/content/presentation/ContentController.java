@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import soon.devspacexbackend.content.application.ContentService;
 import soon.devspacexbackend.content.presentation.dto.*;
 import soon.devspacexbackend.user.domain.User;
-import soon.devspacexbackend.web.session.SessionConst;
+import soon.devspacexbackend.web.application.SessionService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -25,12 +24,13 @@ import java.util.List;
 public class ContentController {
 
     private final ContentService contentServiceImpl;
+    private final SessionService sessionServiceImpl;
 
     @PostMapping
     @Operation(summary = "컨텐츠 등록 API")
     @ResponseStatus(HttpStatus.CREATED)
     public ContentRegisterResDto registerContent(@RequestBody ContentRegisterReqDto dto, HttpServletRequest request) {
-        User loginUser = getLoginUserBySession(request);
+        User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         contentServiceImpl.registerContent(dto, loginUser);
         return new ContentRegisterResDto();
     }
@@ -47,7 +47,7 @@ public class ContentController {
     @Operation(summary = "컨텐츠 상세 조회 API")
     @ResponseStatus(HttpStatus.OK)
     public ContentGetResDto getContent(@PathVariable Long contentId, HttpServletRequest request) {
-        User loginUser = getLoginUserBySession(request);
+        User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         return contentServiceImpl.getContent(contentId, loginUser);
     }
 
@@ -55,16 +55,17 @@ public class ContentController {
     @Operation(summary = "컨텐츠 업데이트 API")
     @ResponseStatus(HttpStatus.OK)
     public ContentUpdateResDto updateContent(@PathVariable Long contentId, @Validated @RequestBody ContentUpdateReqDto dto, HttpServletRequest request) {
-        User loginUser = getLoginUserBySession(request);
+        User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         contentServiceImpl.updateContent(contentId, dto, loginUser);
         return new ContentUpdateResDto();
     }
 
-    private User getLoginUserBySession(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if(session == null) {
-            throw new RuntimeException("session invalid");
-        }
-        return (User) session.getAttribute(SessionConst.LOGIN_USER);
+    @DeleteMapping("/{contentId}")
+    @Operation(summary = "컨텐츠 삭제 API")
+    @ResponseStatus(HttpStatus.OK)
+    public ContentDeleteResDto deleteContent(@PathVariable Long contentId, HttpServletRequest request) {
+        User loginUser = sessionServiceImpl.getLoginUserBySession(request);
+        contentServiceImpl.deleteContent(contentId, loginUser);
+        return new ContentDeleteResDto();
     }
 }
