@@ -58,7 +58,7 @@ public class ContentServiceImpl implements ContentService {
 
         if (userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
             Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET);
-            if(optionalUserContent.isPresent()) {
+            if (optionalUserContent.isPresent()) {
                 optionalUserContent.get().updateModifiedAt();
             } else {
                 userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
@@ -109,7 +109,7 @@ public class ContentServiceImpl implements ContentService {
                 .orElseThrow(() -> new IllegalArgumentException("content not exist"));
 
         Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST);
-        if(optionalUserContent.isPresent()) {
+        if (optionalUserContent.isPresent()) {
             contentRepository.delete(content);
         } else {
             throw new RuntimeException("not exist registered content by user");
