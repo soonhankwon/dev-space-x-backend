@@ -60,6 +60,10 @@ public class User extends CreatedTimeEntity {
         return this.id;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void earn(Integer darkMatter) {
         this.darkMatter += darkMatter;
     }
