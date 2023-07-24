@@ -55,8 +55,7 @@ public class Series {
         }
     }
 
-    public void update(SeriesUpdateReqDto dto, User loginUser) {
-        validateSeriesUser(loginUser);
+    public void update(SeriesUpdateReqDto dto) {
         if(!dto.getName().isEmpty()) {
             this.name = dto.getName();
         }
@@ -64,7 +63,7 @@ public class Series {
         this.type = dto.getType();
     }
 
-    private void validateSeriesUser(User loginUser) {
+    public void validateAuthWithUser(User loginUser) {
         if(loginUser != this.user)
             throw new IllegalArgumentException("no auth to update this series");
     }
