@@ -83,9 +83,11 @@ class SeriesServiceImpl implements SeriesService {
         Series series = seriesRepository.findById(seriesId)
                 .orElseThrow(() -> new IllegalArgumentException("not exist series"));
 
+        series.validateAuthWithUser(loginUser);
+
         if(seriesRepository.existsSeriesByName(dto.getName()))
             throw new IllegalArgumentException("already exists series title");
 
-        series.update(dto, loginUser);
+        series.update(dto);
     }
 }
