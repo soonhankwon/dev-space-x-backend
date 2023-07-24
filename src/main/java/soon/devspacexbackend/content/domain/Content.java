@@ -40,11 +40,16 @@ public class Content extends BaseTimeEntity {
     private List<UserContent> userContents;
 
     public Content(ContentRegisterReqDto dto) {
+        this(dto, null);
+    }
+
+    public Content(ContentRegisterReqDto dto, Series series) {
         this.title = dto.getTitle();
         this.text = dto.getText();
         this.payType = dto.getPayType();
         payType.validateTypeMatchDarkMatter(dto.getDarkMatter());
         this.darkMatter = dto.getDarkMatter();
+        this.series = series;
     }
 
     public Integer getDarkMatter() {
@@ -52,12 +57,11 @@ public class Content extends BaseTimeEntity {
     }
 
     public ContentGetResDto convertContentGetResDto(ContentGetType type) {
-        //TODO MODIFY AFTER COMPLETE SERIES DOMAIN LOGIC
         if (this.series == null) {
             if (type == ContentGetType.VIEW || this.text.length() < 11)
-                return new ContentGetResDto(this.id, this.title, this.text, this.payType, this.darkMatter, "NO SERIES", this.getCreatedAt(), this.getModifiedAt());
+                return new ContentGetResDto(this.id, this.title, this.text, this.payType, this.darkMatter, null, this.getCreatedAt(), this.getModifiedAt());
             else
-                return new ContentGetResDto(this.id, this.title, this.text.substring(0, 10), this.payType, this.darkMatter, "NO SERIES", this.getCreatedAt(), this.getModifiedAt());
+                return new ContentGetResDto(this.id, this.title, this.text.substring(0, 10), this.payType, this.darkMatter, null, this.getCreatedAt(), this.getModifiedAt());
         }
 
         if (type == ContentGetType.VIEW || this.text.length() < 11)
