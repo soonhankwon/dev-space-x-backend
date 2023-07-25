@@ -13,6 +13,8 @@ public final class SeriesGetResDto {
 
     private Long id;
 
+    private String category;
+
     private String name;
 
     private SeriesStatus status;
