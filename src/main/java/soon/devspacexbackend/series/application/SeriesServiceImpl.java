@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import soon.devspacexbackend.category.domain.Category;
+import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentGetType;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
@@ -30,16 +32,20 @@ import java.util.stream.Collectors;
 class SeriesServiceImpl implements SeriesService {
 
     private final SeriesRepository seriesRepository;
+    private final CategoryRepository categoryRepository;
     private final ContentRepository contentRepository;
     private final UserContentRepository userContentRepository;
 
     @Override
     @Transactional
     public void registerSeries(SeriesRegisterReqDto dto, User loginUser) {
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("not exist category"));
+
         if (seriesRepository.existsSeriesByName(dto.getSeriesName())) {
             throw new IllegalArgumentException("중복된 시리즈 제목이 존재합니다.");
         }
-        Series series = new Series(dto, loginUser);
+        Series series = new Series(dto, category, loginUser);
         seriesRepository.save(series);
     }
 
