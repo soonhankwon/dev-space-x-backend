@@ -1,6 +1,7 @@
 package soon.devspacexbackend.series.domain;
 
 import lombok.NoArgsConstructor;
+import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.content.domain.ContentPayType;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesGetResDto;
@@ -30,11 +31,16 @@ public class Series {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
-    public Series(SeriesRegisterReqDto dto, User loginUser) {
+    @OneToOne
+    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Category category;
+
+    public Series(SeriesRegisterReqDto dto, Category category, User loginUser) {
         this.name = dto.getSeriesName();
         this.status = SeriesStatus.SERIALIZED;
         this.type = dto.getSeriesType();
         this.user = loginUser;
+        this.category = category;
     }
 
     public String getName() {
@@ -42,7 +48,7 @@ public class Series {
     }
 
     public SeriesGetResDto convertSeriesGetResDto() {
-        return new SeriesGetResDto(this.id, this.name, this.status, this.type, this.user.getName());
+        return new SeriesGetResDto(this.id, this.category.getName(),this.name, this.status, this.type, this.user.getName());
     }
 
     public void validateContentType(ContentRegisterReqDto dto) {
