@@ -27,7 +27,7 @@ class ContentPayTypeTest {
     void validateFreeTypeDarkMatter() {
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
                 "DEV", "SPACE X", ContentPayType.FREE,
-                100);
+                100, 1L);
         try {
             new Content(dto1);
         } catch (IllegalArgumentException e) {
@@ -40,10 +40,10 @@ class ContentPayTypeTest {
     void validatePayTypeDarkMatter() {
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
                 "DEV", "SPACE X", ContentPayType.PAY,
-                99);
+                99, 1L);
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
                 "DEV", "SPACE X", ContentPayType.PAY,
-                501);
+                501, 1L);
         try {
             new Content(dto1);
         } catch (IllegalArgumentException e) {
