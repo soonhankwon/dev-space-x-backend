@@ -16,6 +16,9 @@ public final class ContentGetResDto {
     @Schema(description = "컨텐츠 아이디", example = "1")
     private final Long id;
 
+    @Schema(description = "컨텐츠 카테소리", example = "JAVA")
+    private final String category;
+
     @Schema(description = "컨텐츠 제목", example = "협업이란?")
     private final String title;
 
