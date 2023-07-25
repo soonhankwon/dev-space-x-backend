@@ -28,8 +28,8 @@ public class DarkMatterHistoryController {
     @GetMapping("/history")
     @Operation(summary = "로그인 다크메터 이력 조회 API")
     @ResponseStatus(HttpStatus.OK)
-    public List<DarkMatterGetHistoryResDto> getDarkMatterHistoryByUser(HttpServletRequest request) {
+    public List<DarkMatterGetHistoryResDto> getDarkMatterHistoriesByUser(HttpServletRequest request) {
         User loginUser = sessionServiceImpl.getLoginUserBySession(request);
-        return darkMatterServiceImpl.getDarkMatterHistoryByUser(loginUser);
+        return darkMatterServiceImpl.getDarkMatterHistoriesByUser(loginUser);
     }
 }
