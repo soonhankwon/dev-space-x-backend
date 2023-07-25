@@ -1,6 +1,7 @@
 package soon.devspacexbackend.content.domain;
 
 import lombok.NoArgsConstructor;
+import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 import soon.devspacexbackend.content.presentation.dto.ContentUpdateReqDto;
@@ -36,19 +37,32 @@ public class Content extends BaseTimeEntity {
     @JoinColumn(name = "series_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Series series;
 
+    @OneToOne
+    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Category category;
+
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserContent> userContents;
 
     public Content(ContentRegisterReqDto dto) {
-        this(dto, null);
+        this(dto, null, null);
+    }
+
+    public Content(ContentRegisterReqDto dto, Category category) {
+        this(dto, category, null);
     }
 
     public Content(ContentRegisterReqDto dto, Series series) {
+        this(dto, null, series);
+    }
+
+    public Content(ContentRegisterReqDto dto, Category category, Series series) {
         this.title = dto.getTitle();
         this.text = dto.getText();
         this.payType = dto.getPayType();
         payType.validateTypeMatchDarkMatter(dto.getDarkMatter());
         this.darkMatter = dto.getDarkMatter();
+        this.category = category;
         this.series = series;
     }
 
@@ -59,15 +73,15 @@ public class Content extends BaseTimeEntity {
     public ContentGetResDto convertContentGetResDto(ContentGetType type) {
         if (this.series == null) {
             if (type == ContentGetType.VIEW || this.text.length() < 11)
-                return new ContentGetResDto(this.id, this.title, this.text, this.payType, this.darkMatter, null, this.getCreatedAt(), this.getModifiedAt());
+                return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text, this.payType, this.darkMatter, null, this.getCreatedAt(), this.getModifiedAt());
             else
-                return new ContentGetResDto(this.id, this.title, this.text.substring(0, 10), this.payType, this.darkMatter, null, this.getCreatedAt(), this.getModifiedAt());
+                return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text.substring(0, 10), this.payType, this.darkMatter, null, this.getCreatedAt(), this.getModifiedAt());
         }
 
         if (type == ContentGetType.VIEW || this.text.length() < 11)
-            return new ContentGetResDto(this.id, this.title, this.text, this.payType, this.darkMatter, this.series.getName(), this.getCreatedAt(), this.getModifiedAt());
+            return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text, this.payType, this.darkMatter, this.series.getName(), this.getCreatedAt(), this.getModifiedAt());
         else
-            return new ContentGetResDto(this.id, this.title, this.text.substring(0, 10), this.payType, this.darkMatter, this.series.getName(), this.getCreatedAt(), this.getModifiedAt());
+            return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text.substring(0, 10), this.payType, this.darkMatter, this.series.getName(), this.getCreatedAt(), this.getModifiedAt());
     }
 
     public boolean isTypePay() {
