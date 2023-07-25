@@ -9,5 +9,6 @@ import lombok.Getter;
 @Schema(description = "컨텐츠 삭제 응답 DTO")
 public final class ContentDeleteResDto {
 
+    @Schema(description = "컨텐츠 삭제 성공 메세지", example = "컨텐츠 삭제 완료")
     private final String message = "컨텐츠 삭제 완료";
 }
