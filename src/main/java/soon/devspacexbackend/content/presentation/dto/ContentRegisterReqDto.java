@@ -21,4 +21,7 @@ public final class ContentRegisterReqDto {
 
     @Schema(description = "다크매터", example = "0")
     private final Integer darkMatter;
+
+    @Schema(description = "컨텐츠 카테고리 ID", example = "1")
+    private final Long categoryId;
 }
