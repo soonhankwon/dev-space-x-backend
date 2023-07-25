@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import soon.devspacexbackend.category.domain.Category;
+import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentGetType;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
@@ -30,13 +32,16 @@ import java.util.stream.Collectors;
 public class ContentServiceImpl implements ContentService {
 
     private final ContentRepository contentRepository;
+    private final CategoryRepository categoryRepository;
     private final UserContentRepository userContentRepository;
     private final DarkMatterHistoryRepository darkMatterHistoryRepository;
 
     @Override
     @Transactional
     public void registerContent(ContentRegisterReqDto dto, User loginUser) {
-        Content content = new Content(dto);
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("not exists category"));
+        Content content = new Content(dto, category);
         contentRepository.save(content);
         userContentRepository.save(new UserContent(loginUser, content, BehaviorType.POST));
     }
