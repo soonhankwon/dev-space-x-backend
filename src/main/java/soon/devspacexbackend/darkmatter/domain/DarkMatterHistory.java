@@ -1,6 +1,7 @@
 package soon.devspacexbackend.darkmatter.domain;
 
 import lombok.NoArgsConstructor;
+import soon.devspacexbackend.darkmatter.presentation.dto.DarkMatterGetHistoryResDto;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.utils.CreatedTimeEntity;
 
@@ -27,5 +28,9 @@ public class DarkMatterHistory extends CreatedTimeEntity {
         this.user = user;
         this.type = type;
         this.darkMatter = darkMatter.longValue();
+    }
+
+    public DarkMatterGetHistoryResDto convertDarkMatterGetHistoryResDto() {
+        return new DarkMatterGetHistoryResDto(this.type, this.darkMatter, this.getCreatedAt());
     }
 }
