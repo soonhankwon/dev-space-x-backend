@@ -15,4 +15,7 @@ public final class SeriesRegisterReqDto {
 
     @Schema(description = "시리즈 타입", example = "FREE")
     private final SeriesType seriesType;
+
+    @Schema(description = "카테고리 ID", example = "1")
+    private final Long categoryId;
 }
