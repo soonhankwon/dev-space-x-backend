@@ -3,8 +3,11 @@ package soon.devspacexbackend.user.domain;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import soon.devspacexbackend.content.domain.Content;
+import soon.devspacexbackend.exception.ApiException;
+import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.review.domain.Review;
 import soon.devspacexbackend.user.presentation.dto.UserHistoryGetContentResDto;
+import soon.devspacexbackend.user.presentation.dto.UserResignReqDto;
 import soon.devspacexbackend.user.presentation.dto.UserSignupReqDto;
 import soon.devspacexbackend.utils.CreatedTimeEntity;
 
@@ -42,18 +45,21 @@ public class User extends CreatedTimeEntity {
 
     public User(UserSignupReqDto dto) {
         this.email = dto.getEmail();
-        this.name = dto.getName();
+        this.name = dto.getName().trim();
         this.password = dto.getPassword();
         this.userType = UserType.CANDIDATE;
         this.darkMatter = MIN_POINT;
     }
 
     public void pay(Content content) {
-        Integer requiredDarkMatter = content.getDarkMatter();
-        if (this.darkMatter < requiredDarkMatter) {
-            throw new RuntimeException("다크매터가 부족합니다.");
+        if (!hasEnoughDarkMatter(content.getDarkMatter())) {
+            throw new ApiException(CustomErrorCode.NOT_ENOUGH_DARK_MATTER);
         }
         this.darkMatter -= content.getDarkMatter();
+    }
+
+    private boolean hasEnoughDarkMatter(Integer requiredDarkMatter) {
+        return this.darkMatter >= requiredDarkMatter;
     }
 
     public Long getId() {
@@ -70,5 +76,9 @@ public class User extends CreatedTimeEntity {
 
     public UserHistoryGetContentResDto writeUserInfoUserHistoryGetContentResDto() {
         return new UserHistoryGetContentResDto(this.email, this.userType, null);
+    }
+
+    public boolean isPasswordValid(UserResignReqDto dto) {
+        return this.password.equals(dto.getPassword());
     }
 }
