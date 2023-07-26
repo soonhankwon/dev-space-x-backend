@@ -58,7 +58,7 @@ public class SeriesController {
     }
 
     @GetMapping("/{seriesId}")
-    @Operation(summary = "시리즈 조회 API")
+    @Operation(summary = "시리즈 컨텐츠 조회 API")
     @ResponseStatus(HttpStatus.OK)
     public List<ContentGetResDto> getSeriesContents(@PathVariable Long seriesId, @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return seriesServiceImpl.getSeriesContents(seriesId, pageable);
