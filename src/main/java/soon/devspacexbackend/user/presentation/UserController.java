@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import soon.devspacexbackend.user.application.UserService;
 import soon.devspacexbackend.user.domain.User;
@@ -26,7 +27,7 @@ public class UserController {
     @PostMapping("/signup")
     @Operation(summary = "회원 가입 API")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserSignupResDto signupUser(@RequestBody UserSignupReqDto dto) {
+    public UserSignupResDto signupUser(@Validated @RequestBody UserSignupReqDto dto) {
         userServiceImpl.signupUser(dto);
         return new UserSignupResDto();
     }
