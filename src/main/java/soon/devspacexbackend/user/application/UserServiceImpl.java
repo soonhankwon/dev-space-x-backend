@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
+import soon.devspacexbackend.exception.ApiException;
+import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.user.domain.BehaviorType;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.domain.UserContent;
@@ -36,13 +38,15 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void resignUser(UserResignReqDto dto, User loginUser) {
+        if (!loginUser.isPasswordValid(dto))
+            throw new IllegalArgumentException(CustomErrorCode.PASSWORD_INVALID.getMessage());
         userRepository.delete(loginUser);
     }
 
     @Override
     public List<UserHistoryGetContentResDto> getUsersHistoryByContent(Long contentId) {
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("not exist content"));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
         List<UserContent> userContent = userContentRepository.findUserContentsByContentAndType(content, BehaviorType.GET);
 
