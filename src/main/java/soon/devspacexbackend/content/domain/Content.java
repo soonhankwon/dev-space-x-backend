@@ -1,5 +1,6 @@
 package soon.devspacexbackend.content.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
@@ -13,6 +14,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Entity
 public class Content extends BaseTimeEntity {
 
@@ -71,28 +73,38 @@ public class Content extends BaseTimeEntity {
     }
 
     public ContentGetResDto convertContentGetResDto(ContentGetType type) {
-        if (this.series == null) {
-            if (type == ContentGetType.VIEW || this.text.length() < 11)
-                return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text, this.payType, this.darkMatter, null, this.getCreatedAt(), this.getModifiedAt());
-            else
-                return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text.substring(0, 10), this.payType, this.darkMatter, null, this.getCreatedAt(), this.getModifiedAt());
+        String seriesName = isNotSeriesContent() ? null : this.series.getName();
+        if(isTextLengthUnderEleven()) {
+            return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text, this.payType, this.darkMatter, seriesName, this.getCreatedAt(), this.getModifiedAt());
         }
+        String viewText = isGetTypePreview(type) ? this.text.substring(0, 10) : this.text;
+        return new ContentGetResDto(this.id, this.category.getName(), this.title, viewText, this.payType, this.darkMatter, seriesName, this.getCreatedAt(), this.getModifiedAt());
+    }
 
-        if (type == ContentGetType.VIEW || this.text.length() < 11)
-            return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text, this.payType, this.darkMatter, this.series.getName(), this.getCreatedAt(), this.getModifiedAt());
-        else
-            return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text.substring(0, 10), this.payType, this.darkMatter, this.series.getName(), this.getCreatedAt(), this.getModifiedAt());
+    private boolean isNotSeriesContent() {
+        return this.series == null;
+    }
+
+    private boolean isTextLengthUnderEleven() {
+        return this.text.length() < 11;
+    }
+
+    private boolean isGetTypePreview(ContentGetType type) {
+        return type == ContentGetType.PREVIEW;
     }
 
     public boolean isTypePay() {
         return this.payType == ContentPayType.PAY;
     }
 
-    public void update(ContentUpdateReqDto dto) {
+    public void update(ContentUpdateReqDto dto, Category category) {
         this.title = dto.getTitle();
         this.text = dto.getText();
         this.payType = dto.getPayType();
         payType.validateTypeMatchDarkMatter(dto.getDarkMatter());
         this.darkMatter = dto.getDarkMatter();
+        if (category != null) {
+            this.category = category;
+        }
     }
 }
