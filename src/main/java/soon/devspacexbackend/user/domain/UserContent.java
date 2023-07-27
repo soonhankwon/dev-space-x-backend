@@ -37,7 +37,7 @@ public class UserContent extends BaseTimeEntity {
     }
 
     public UserHistoryGetContentResDto convertUserHistoryGetContentResDto() {
-        UserHistoryGetContentResDto dto = user.writeUserInfoUserHistoryGetContentResDto();
+        UserHistoryGetContentResDto dto = user.addUserInfoUserHistoryGetContentResDto();
         dto.setLastViewedDateTime(this.getModifiedAt());
         return dto;
     }
