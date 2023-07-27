@@ -49,6 +49,48 @@ class ContentTest {
     }
 
     @Test
+    @DisplayName("컨텐츠 조회 응답 DTO 로 변환 테스트 : 조회 타입 PREVIEW (10자)")
+    void convertContentGetResDtoByPreview() {
+        CategoryRegisterReqDto dto1 = new CategoryRegisterReqDto("JAVA");
+        Category category = new Category(dto1);
+
+        ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
+                "java?", "01234567890123", ContentPayType.PAY,500, null);
+        Content content1 = new Content(dto2, category, null);
+
+        ContentRegisterReqDto dto3 = new ContentRegisterReqDto(
+                "java?", "012345678", ContentPayType.PAY,500, null);
+        Content content2 = new Content(dto3, category, null);
+
+        ContentGetResDto res1 = content1.convertContentGetResDto(ContentGetType.PREVIEW);
+        ContentGetResDto res2 = content2.convertContentGetResDto(ContentGetType.PREVIEW);
+
+        assertThat(res1.getText()).isEqualTo("0123456789");
+        assertThat(res2.getText()).isEqualTo("012345678");
+    }
+
+    @Test
+    @DisplayName("컨텐츠 조회 응답 DTO 로 변환 테스트 : 조회 타입 VIEW")
+    void convertContentGetResDtoByView() {
+        CategoryRegisterReqDto dto1 = new CategoryRegisterReqDto("JAVA");
+        Category category = new Category(dto1);
+
+        ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
+                "java?", "01234567890123", ContentPayType.PAY,500, null);
+        Content content1 = new Content(dto2, category, null);
+
+        ContentRegisterReqDto dto3 = new ContentRegisterReqDto(
+                "java?", "012345678", ContentPayType.PAY,500, null);
+        Content content2 = new Content(dto3, category, null);
+
+        ContentGetResDto res1 = content1.convertContentGetResDto(ContentGetType.VIEW);
+        ContentGetResDto res2 = content2.convertContentGetResDto(ContentGetType.VIEW);
+
+        assertThat(res1.getText()).isEqualTo("01234567890123");
+        assertThat(res2.getText()).isEqualTo("012345678");
+    }
+
+    @Test
     @DisplayName("컨텐츠 타입이 유료이면 true")
     void isTypePay() {
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
@@ -64,11 +106,18 @@ class ContentTest {
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
                 "What is java?", "text", ContentPayType.PAY,100, null);
         Content content1 = new Content(dto1);
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
 
-        ContentUpdateReqDto dto2 = new ContentUpdateReqDto("What is spring?", "text", ContentPayType.PAY,200);
+        ContentUpdateReqDto updateDto = new ContentUpdateReqDto("What is spring?", "text", ContentPayType.PAY,200);
 
-        content1.update(dto2, null);
+        ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
+                "What is java?", "text", ContentPayType.PAY,100, null);
+        Content content2 = new Content(dto2);
+
+        content2.update(updateDto, category);
+        content1.update(updateDto, category);
 
         assertThat(content1.getDarkMatter()).isEqualTo(200);
+        assertThat(content1).isEqualTo(content2);
     }
 }
