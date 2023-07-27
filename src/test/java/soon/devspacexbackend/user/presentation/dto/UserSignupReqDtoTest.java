@@ -32,15 +32,15 @@ class UserSignupReqDtoTest {
         UserSignupReqDto dto3 = new UserSignupReqDto("test@gmail.com", null, "1234");
         UserSignupReqDto dto4 = new UserSignupReqDto("test@gmail.com", "0123456789012345678901", "1234");
 
-        Set<ConstraintViolation<UserSignupReqDto>> violations1 = validator.validate(dto1);
-        Set<ConstraintViolation<UserSignupReqDto>> violations2 = validator.validate(dto2);
-        Set<ConstraintViolation<UserSignupReqDto>> violations3 = validator.validate(dto3);
-        Set<ConstraintViolation<UserSignupReqDto>> violations4 = validator.validate(dto4);
+        Set<ConstraintViolation<UserSignupReqDto>> violationsNotBlankAndSize = validator.validate(dto1);
+        Set<ConstraintViolation<UserSignupReqDto>> violations1 = validator.validate(dto2);
+        Set<ConstraintViolation<UserSignupReqDto>> violations2 = validator.validate(dto3);
+        Set<ConstraintViolation<UserSignupReqDto>> violations3 = validator.validate(dto4);
 
-        assertThat(violations1.size()).isEqualTo(2);
+        assertThat(violationsNotBlankAndSize.size()).isEqualTo(2);
+        assertThat(violations1.size()).isEqualTo(1);
         assertThat(violations2.size()).isEqualTo(1);
         assertThat(violations3.size()).isEqualTo(1);
-        assertThat(violations4.size()).isEqualTo(1);
     }
 
     @Test
@@ -51,12 +51,12 @@ class UserSignupReqDtoTest {
         UserSignupReqDto dto3 = new UserSignupReqDto("test@gmail.com", "test", " ");
 
         Set<ConstraintViolation<UserSignupReqDto>> violations1 = validator.validate(dto1);
-        Set<ConstraintViolation<UserSignupReqDto>> violations2 = validator.validate(dto2);
-        Set<ConstraintViolation<UserSignupReqDto>> violations3 = validator.validate(dto3);
+        Set<ConstraintViolation<UserSignupReqDto>> violationsNotBlankAndSize1 = validator.validate(dto2);
+        Set<ConstraintViolation<UserSignupReqDto>> violationsNotBlankAndSize2 = validator.validate(dto3);
 
         assertThat(violations1.size()).isEqualTo(1);
-        assertThat(violations2.size()).isEqualTo(2);
-        assertThat(violations3.size()).isEqualTo(2);
+        assertThat(violationsNotBlankAndSize1.size()).isEqualTo(2);
+        assertThat(violationsNotBlankAndSize2.size()).isEqualTo(2);
     }
 
     @Test
