@@ -4,23 +4,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
-import soon.devspacexbackend.content.domain.Content;
-import soon.devspacexbackend.content.domain.ContentPayType;
-import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 import soon.devspacexbackend.darkmatter.domain.ChangeType;
 import soon.devspacexbackend.darkmatter.domain.DarkMatterHistory;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.infrastructure.persistence.UserRepository;
 import soon.devspacexbackend.user.presentation.dto.UserSignupReqDto;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class DarkMatterHistoryRepositoryTest {
