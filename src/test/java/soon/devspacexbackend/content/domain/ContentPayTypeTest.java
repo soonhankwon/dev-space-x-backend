@@ -28,11 +28,9 @@ class ContentPayTypeTest {
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
                 "DEV", "SPACE X", ContentPayType.FREE,
                 100, 1L);
-        try {
-            new Content(dto1);
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage()).isEqualTo("invalid matter value");
-        }
+
+        assertThatThrownBy(() -> new Content(dto1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -44,11 +42,9 @@ class ContentPayTypeTest {
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
                 "DEV", "SPACE X", ContentPayType.PAY,
                 501, 1L);
-        try {
-            new Content(dto1);
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage()).isEqualTo("invalid matter value");
-        }
+
+        assertThatThrownBy(() -> new Content(dto1))
+                .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new Content(dto2))
                 .isInstanceOf(IllegalArgumentException.class);
     }
