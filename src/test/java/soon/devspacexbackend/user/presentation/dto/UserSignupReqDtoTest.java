@@ -60,7 +60,7 @@ class UserSignupReqDtoTest {
     }
 
     @Test
-    @DisplayName("유저 가입 패스워드 Size 검증 테스트 - range 4~20")
+    @DisplayName("유저 가입 패스워드 Size 검증 테스트 : range 4~20")
     void passwordSizeValidate() {
         UserSignupReqDto dto1 = new UserSignupReqDto("test@gmail.com", "test", "012345678901234567890");
         UserSignupReqDto dto2 = new UserSignupReqDto("test@gmail.com", "test", "123");
@@ -73,7 +73,7 @@ class UserSignupReqDtoTest {
     }
 
     @Test
-    @DisplayName("유저 가입 패스워드 Pattern 검증 테스트 - 공백 불가")
+    @DisplayName("유저 가입 패스워드 Pattern 검증 테스트 : 공백 불가")
     void passwordPatternValidate() {
         UserSignupReqDto dto1 = new UserSignupReqDto("test@gmail.com", "test", "  123456");
         UserSignupReqDto dto2 = new UserSignupReqDto("test@gmail.com", "test", " 1 1 2 4");
@@ -86,7 +86,7 @@ class UserSignupReqDtoTest {
     }
 
     @Test
-    @DisplayName("유저 가입 패스워드 Pattern 검증 테스트 - 한글 불가")
+    @DisplayName("유저 가입 패스워드 Pattern 검증 테스트 : 한글 불가")
     void passwordPatternKoreanValidate() {
         UserSignupReqDto dto1 = new UserSignupReqDto("test@gmail.com", "test", "가나다라마");
 
