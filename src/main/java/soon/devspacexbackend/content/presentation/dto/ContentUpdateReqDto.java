@@ -1,21 +1,33 @@
 package soon.devspacexbackend.content.presentation.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import soon.devspacexbackend.content.domain.ContentPayType;
 
 import javax.validation.constraints.NotEmpty;
 
 @Getter
-@AllArgsConstructor
 public final class ContentUpdateReqDto {
 
     @NotEmpty
-    private String title;
+    private final String title;
 
-    private String text;
+    private final String text;
 
-    private ContentPayType payType;
+    private final ContentPayType payType;
 
-    private Integer darkMatter;
+    private final Integer darkMatter;
+
+    private final Long categoryId;
+
+    public ContentUpdateReqDto(String title, String text, ContentPayType payType, Integer darkMatter) {
+        this(title, text, payType, darkMatter, null);
+    }
+
+    public ContentUpdateReqDto(String title, String text, ContentPayType payType, Integer darkMatter, Long categoryId) {
+        this.title = title;
+        this.text = text;
+        this.payType = payType;
+        this.darkMatter = darkMatter;
+        this.categoryId = categoryId;
+    }
 }
