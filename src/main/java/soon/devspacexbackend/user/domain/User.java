@@ -1,5 +1,6 @@
 package soon.devspacexbackend.user.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import soon.devspacexbackend.content.domain.Content;
@@ -17,6 +18,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @ToString
+@EqualsAndHashCode(callSuper = false)
 @Table(name = "`user`")
 public class User extends CreatedTimeEntity {
 
@@ -51,6 +53,14 @@ public class User extends CreatedTimeEntity {
         this.darkMatter = MIN_POINT;
     }
 
+    public Long getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public void pay(Content content) {
         if (!hasEnoughDarkMatter(content.getDarkMatter())) {
             throw new ApiException(CustomErrorCode.NOT_ENOUGH_DARK_MATTER);
@@ -62,19 +72,17 @@ public class User extends CreatedTimeEntity {
         return this.darkMatter >= requiredDarkMatter;
     }
 
-    public Long getId() {
-        return this.id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
     public void earn(Integer darkMatter) {
+        if (isDarkMatterNegativeOrZero(darkMatter))
+            throw new IllegalArgumentException("다크매터 획득은 0보다 커야합니다.");
         this.darkMatter += darkMatter;
     }
 
-    public UserHistoryGetContentResDto writeUserInfoUserHistoryGetContentResDto() {
+    private boolean isDarkMatterNegativeOrZero(Integer darkMatter) {
+        return darkMatter <= 0;
+    }
+
+    public UserHistoryGetContentResDto addUserInfoUserHistoryGetContentResDto() {
         return new UserHistoryGetContentResDto(this.email, this.userType, null);
     }
 
