@@ -104,7 +104,13 @@ public class ContentServiceImpl implements ContentService {
             throw new IllegalArgumentException("not exist registered content by user");
         }
 
-        content.update(dto);
+        if(dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new IllegalArgumentException("category not exist"));
+            content.update(dto, category);
+        } else {
+            content.update(dto, null);
+        }
     }
 
     @Override
