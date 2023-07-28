@@ -70,8 +70,8 @@ class ContentRepositoryTest {
         Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         categoryRepository.save(category);
 
-        SeriesRegisterReqDto dto = new SeriesRegisterReqDto("effective java series1", SeriesType.FREE, 1L);
-        Series series = new Series(dto, category, null);
+        SeriesRegisterReqDto dto = new SeriesRegisterReqDto("effective java series1", SeriesType.FREE, 1L, category);
+        Series series = new Series(dto, null);
         seriesRepository.save(series);
 
         IntStream.range(0, 21).forEach(i -> {
