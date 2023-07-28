@@ -8,6 +8,7 @@ import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
 import soon.devspacexbackend.category.presentation.dto.CategoryGetResDto;
 import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
+import soon.devspacexbackend.exception.CustomErrorCode;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService{
     @Transactional
     public void registerCategory(CategoryRegisterReqDto dto) {
         if(categoryRepository.existsByName(dto.getName())) {
-            throw new IllegalArgumentException("already exists category name");
+            throw new IllegalArgumentException(CustomErrorCode.DUPLICATED_NAME.getMessage());
         }
         Category category = new Category(dto);
         categoryRepository.save(category);
