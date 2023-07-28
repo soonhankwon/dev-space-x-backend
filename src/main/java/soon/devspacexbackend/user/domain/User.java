@@ -89,4 +89,8 @@ public class User extends CreatedTimeEntity {
     public boolean isPasswordValid(UserResignReqDto dto) {
         return this.password.equals(dto.getPassword());
     }
+
+    public boolean isTypeAdmin() {
+        return this.userType == UserType.ADMIN;
+    }
 }
