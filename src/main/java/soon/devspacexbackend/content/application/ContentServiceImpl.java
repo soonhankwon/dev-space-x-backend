@@ -46,11 +46,15 @@ public class ContentServiceImpl implements ContentService {
 
         Content content = new Content(dto, category);
         contentRepository.save(content);
+        saveContentPostRecordByUser(loginUser, content);
+    }
+
+    private void saveContentPostRecordByUser(User loginUser, Content content) {
         userContentRepository.save(new UserContent(loginUser, content, BehaviorType.POST));
     }
 
     @Override
-    public List<ContentGetResDto> getAllContent(Pageable pageable) {
+    public List<ContentGetResDto> getAllContents(Pageable pageable) {
         Page<Content> contentPage = contentRepository.findAll(pageable);
 
         return contentPage.getContent().stream()
@@ -70,31 +74,38 @@ public class ContentServiceImpl implements ContentService {
         if (content.isTypePay()) {
             loginUser.pay(content);
             darkMatterHistoryRepository.save(new DarkMatterHistory(loginUser, ChangeType.USE, content.getDarkMatter()));
-            userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
+            saveContentGetRecordByUser(loginUser, content);
 
             UserContent userContent = userContentRepository.findUserContentByContentAndType(content, BehaviorType.POST)
                     .orElseThrow(() -> new ApiException(CustomErrorCode.DB_DATA_ERROR));
+
             User contentProviderUser = userContent.getUser();
             contentProviderUser.earn(content.getDarkMatter());
-            darkMatterHistoryRepository.save(new DarkMatterHistory(contentProviderUser, ChangeType.CHARGE, content.getDarkMatter()));
-        }
 
+            darkMatterHistoryRepository.save(new DarkMatterHistory(contentProviderUser, ChangeType.CHARGE, content.getDarkMatter()));
+        } else {
+            saveContentGetRecordByUser(loginUser, content);
+        }
         return content.convertContentGetResDto(ContentGetType.VIEW);
     }
 
+    private void saveContentGetRecordByUser(User loginUser, Content content) {
+        userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
+    }
+
     private boolean isUserAlreadyAccessedContent(User loginUser, Content content) {
-        if (hasUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
+        if (hasUserContentRecordByUserCaseByType(content, loginUser, BehaviorType.POST)) {
             Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET);
             if (optionalUserContent.isPresent()) {
                 optionalUserContent.get().updateModifiedAt();
             }
             else {
-                userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
+                saveContentGetRecordByUser(loginUser, content);
             }
             return true;
         }
 
-        if (hasUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)) {
+        if (hasUserContentRecordByUserCaseByType(content, loginUser, BehaviorType.GET)) {
             UserContent userContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)
                     .orElseThrow(() -> new ApiException(CustomErrorCode.DB_DATA_ERROR));
             userContent.updateModifiedAt();
@@ -103,7 +114,7 @@ public class ContentServiceImpl implements ContentService {
         return false;
     }
 
-    private boolean hasUserContentByContentAndUserAndType(Content content, User loginUser, BehaviorType type) {
+    private boolean hasUserContentRecordByUserCaseByType(Content content, User loginUser, BehaviorType type) {
         return userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, type);
     }
 
@@ -113,8 +124,8 @@ public class ContentServiceImpl implements ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
-        if (!hasUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
-            throw new IllegalArgumentException("not exist registered content by user");
+        if (!hasUserContentRecordByUserCaseByType(content, loginUser, BehaviorType.POST)) {
+            throw new ApiException(CustomErrorCode.USER_POST_CONTENT_NOT_EXIST);
         }
 
         if (dto.getCategoryId() != null) {
@@ -136,7 +147,7 @@ public class ContentServiceImpl implements ContentService {
         if (optionalUserContent.isPresent()) {
             contentRepository.delete(content);
         } else {
-            throw new RuntimeException("not exist registered content by user");
+            throw new ApiException(CustomErrorCode.USER_POST_CONTENT_NOT_EXIST);
         }
     }
 }
