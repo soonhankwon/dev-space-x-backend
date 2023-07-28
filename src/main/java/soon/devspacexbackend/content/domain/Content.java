@@ -7,6 +7,7 @@ import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 import soon.devspacexbackend.content.presentation.dto.ContentUpdateReqDto;
 import soon.devspacexbackend.series.domain.Series;
+import soon.devspacexbackend.series.presentation.dto.SeriesContentRegisterReqDto;
 import soon.devspacexbackend.user.domain.UserContent;
 import soon.devspacexbackend.utils.BaseTimeEntity;
 
@@ -46,16 +47,12 @@ public class Content extends BaseTimeEntity {
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserContent> userContents;
 
-    public Content(ContentRegisterReqDto dto) {
-        this(dto, null, null);
-    }
-
     public Content(ContentRegisterReqDto dto, Category category) {
         this(dto, category, null);
     }
 
     public Content(ContentRegisterReqDto dto, Series series) {
-        this(dto, null, series);
+        this(dto, series.getCategory(), series);
     }
 
     public Content(ContentRegisterReqDto dto, Category category, Series series) {
@@ -66,6 +63,15 @@ public class Content extends BaseTimeEntity {
         this.darkMatter = dto.getDarkMatter();
         this.category = category;
         this.series = series;
+    }
+
+    public Content(SeriesContentRegisterReqDto dto, Series series) {
+        this.title = dto.getTitle();
+        this.text = dto.getText();
+        this.payType = dto.getPayType();
+        this.darkMatter = dto.getDarkMatter();
+        this.series  = series;
+        this.category = series.getCategory();
     }
 
     public Integer getDarkMatter() {
