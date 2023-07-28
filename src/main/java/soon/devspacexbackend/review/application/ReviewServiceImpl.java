@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
 import soon.devspacexbackend.darkmatter.application.DarkMatterService;
+import soon.devspacexbackend.exception.ApiException;
+import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.review.domain.Review;
 import soon.devspacexbackend.review.domain.ReviewType;
 import soon.devspacexbackend.review.infrastructure.persistence.ReviewRepository;
@@ -14,6 +16,7 @@ import soon.devspacexbackend.review.presentation.dto.ReviewRegisterReqDto;
 import soon.devspacexbackend.review.presentation.dto.ReviewUpdateReqDto;
 import soon.devspacexbackend.user.domain.BehaviorType;
 import soon.devspacexbackend.user.domain.User;
+import soon.devspacexbackend.user.domain.UserContent;
 import soon.devspacexbackend.user.infrastructure.persistence.UserContentRepository;
 
 @Slf4j
@@ -43,7 +46,15 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review review = new Review(loginUser, content, dto);
         reviewRepository.save(review);
-        darkMatterServiceImpl.changeUserDarkMatterByReview(loginUser, review);
+
+        UserContent userContent = userContentRepository.findUserContentByContentAndType(content, BehaviorType.POST)
+                .orElseThrow(() -> new ApiException(CustomErrorCode.DB_DATA_ERROR));
+
+        User contentProvider = userContent.getUser();
+        if(review.isTypeLike()) {
+            darkMatterServiceImpl.increaseUserDarkMatter(contentProvider);
+            contentProvider.earnExp();
+        }
     }
 
     @Override
@@ -53,7 +64,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("not exist review"));
 
         if(!review.isTypeLike() && dto.getType() == ReviewType.LIKE) {
-            darkMatterServiceImpl.changeUserDarkMatterByReview(loginUser, review);
+            darkMatterServiceImpl.increaseUserDarkMatter(loginUser);
             review.update(dto);
         } else {
             review.update(dto);
