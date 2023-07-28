@@ -11,6 +11,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import soon.devspacexbackend.content.application.ContentService;
 import soon.devspacexbackend.content.presentation.dto.*;
+import soon.devspacexbackend.exception.ApiException;
+import soon.devspacexbackend.exception.CustomErrorCode;
+import soon.devspacexbackend.review.domain.ReviewType;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.web.application.SessionService;
 
@@ -52,10 +55,16 @@ public class ContentController {
     }
 
     @GetMapping("/top3")
-    @Operation(summary = "리뷰 좋아요 TOP3 컨텐츠 조회 API")
+    @Operation(summary = "리뷰 좋아요 또는 아쉬워요 TOP3 컨텐츠 조회 API", description = "아쉬워요 TOP3 는 관리자용")
     @ResponseStatus(HttpStatus.OK)
-    public List<ContentGetResDto> getTop3Contents() {
-        return contentServiceImpl.getTop3Contents();
+    public List<ContentGetResDto> getTop3Contents(@RequestParam("type") ReviewType type, HttpServletRequest request) {
+        if (type != ReviewType.LIKE) {
+            User loginUser = sessionServiceImpl.getLoginUserBySession(request);
+            if (!loginUser.isTypeAdmin()) {
+                throw new ApiException(CustomErrorCode.NO_AUTH_TO_ACCESS_API);
+            }
+        }
+        return contentServiceImpl.getTop3ContentsByReviewType(type);
     }
 
     @PatchMapping("/{contentId}")
