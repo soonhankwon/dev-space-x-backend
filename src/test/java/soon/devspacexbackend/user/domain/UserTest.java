@@ -12,6 +12,8 @@ import soon.devspacexbackend.user.presentation.dto.UserHistoryGetContentResDto;
 import soon.devspacexbackend.user.presentation.dto.UserResignReqDto;
 import soon.devspacexbackend.user.presentation.dto.UserSignupReqDto;
 
+import java.util.stream.IntStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -143,5 +145,29 @@ class UserTest {
         User user1 = new User(dto1);
 
         assertThat(user1.isTypeAdmin()).isFalse();
+    }
+
+    @Test
+    @DisplayName("유저 경험치 획득 테스트")
+    void earnExp() {
+        UserSignupReqDto dto1 = new UserSignupReqDto(
+                "test@gmail.com", "tester", "1234");
+        User user1 = new User(dto1);
+
+        user1.earnExp();
+
+        assertThat(user1.getExp()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("유저 경험치 획득 테스트 : 일정 경험치 획득시 타입 업그레이드")
+    void earnExpAndIfAvailableUpgrade() {
+        UserSignupReqDto dto1 = new UserSignupReqDto(
+                "test@gmail.com", "tester", "1234");
+        User user1 = new User(dto1);
+
+        IntStream.range(0, 50).forEach(i -> user1.earnExp());
+
+        assertThat(user1.getUserType()).isSameAs(UserType.PILOT);
     }
 }
