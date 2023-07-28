@@ -19,4 +19,6 @@ public interface ContentService {
     void updateContent(Long contentId, ContentUpdateReqDto dto, User loginUser);
 
     void deleteContent(Long contentId, User loginUser);
+
+    List<ContentGetResDto> getTop3Contents();
 }
