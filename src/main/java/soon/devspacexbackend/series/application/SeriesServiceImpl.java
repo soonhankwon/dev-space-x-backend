@@ -12,9 +12,9 @@ import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentGetType;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
-import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 import soon.devspacexbackend.series.domain.Series;
 import soon.devspacexbackend.series.infrastructure.persistence.SeriesRepository;
+import soon.devspacexbackend.series.presentation.dto.SeriesContentRegisterReqDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesGetResDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesRegisterReqDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesUpdateReqDto;
@@ -45,16 +45,16 @@ class SeriesServiceImpl implements SeriesService {
         if (seriesRepository.existsSeriesByName(dto.getSeriesName())) {
             throw new IllegalArgumentException("중복된 시리즈 제목이 존재합니다.");
         }
-        Series series = new Series(dto, category, loginUser);
+        Series series = new Series(new SeriesRegisterReqDto(dto, category), loginUser);
         seriesRepository.save(series);
     }
 
     @Override
     @Transactional
-    public void registerSeriesContent(Long seriesId, ContentRegisterReqDto dto, User loginUser) {
+    public void registerSeriesContent(Long seriesId, SeriesContentRegisterReqDto dto, User loginUser) {
         Series series = seriesRepository.findById(seriesId)
                 .orElseThrow(() -> new IllegalArgumentException("not exists series"));
-        series.validateContentType(dto);
+        series.validateSeriesTypeMatchContentPayType(dto);
 
         Content content = new Content(dto, series);
         contentRepository.save(content);
