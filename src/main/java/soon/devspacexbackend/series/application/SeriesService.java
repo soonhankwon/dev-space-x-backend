@@ -2,7 +2,7 @@ package soon.devspacexbackend.series.application;
 
 import org.springframework.data.domain.Pageable;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
-import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
+import soon.devspacexbackend.series.presentation.dto.SeriesContentRegisterReqDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesGetResDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesRegisterReqDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesUpdateReqDto;
@@ -13,7 +13,7 @@ import java.util.List;
 public interface SeriesService {
     void registerSeries(SeriesRegisterReqDto dto, User loginUser);
 
-    void registerSeriesContent(Long seriesId, ContentRegisterReqDto dto, User loginUser);
+    void registerSeriesContent(Long seriesId, SeriesContentRegisterReqDto dto, User loginUser);
 
     List<SeriesGetResDto> getAllSeries(Pageable pageable);
 
