@@ -64,8 +64,8 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public List<ContentGetResDto> getTop3Contents() {
-        return contentRepository.findTop3ContentsByReviewType(ReviewType.LIKE)
+    public List<ContentGetResDto> getTop3ContentsByReviewType(ReviewType type) {
+        return contentRepository.findTop3ContentsByReviewType(type)
                 .stream()
                 .map(i -> i.convertContentGetResDto(ContentGetType.PREVIEW))
                 .collect(Collectors.toList());
