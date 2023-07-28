@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import soon.devspacexbackend.exception.ApiException;
+import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.user.application.UserService;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.presentation.dto.*;
@@ -46,6 +48,10 @@ public class UserController {
     @Operation(summary = "특정 컨텐츠 사용자 이력 조회 API")
     @ResponseStatus(HttpStatus.OK)
     public List<UserHistoryGetContentResDto> getUsersHistoryByContent(@PathVariable Long contentId, HttpServletRequest request) {
+        User loginUser = sessionServiceImpl.getLoginUserBySession(request);
+        if(!loginUser.isTypeAdmin()) {
+            throw new ApiException(CustomErrorCode.NO_AUTH_TO_ACCESS_API);
+        }
         return userServiceImpl.getUsersHistoryByContent(contentId);
     }
 }
