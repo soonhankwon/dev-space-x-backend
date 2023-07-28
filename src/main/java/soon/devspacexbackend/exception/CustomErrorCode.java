@@ -15,7 +15,8 @@ public enum CustomErrorCode {
     FREE_TYPE_MATTER_INVALID("무료 컨텐츠는 다크매터가 0 이어야합니다."),
     PAY_TYPE_MATTER_INVALID("유료 컨텐츠는 다크매터가 100이상 500이하 여야합니다."),
     NOT_ENOUGH_DARK_MATTER("다크매터가 부족합니다."),
-    USER_POST_CONTENT_NOT_EXIST("유저가 포스트한 컨텐츠가 존재하지 않습니다.");
+    USER_POST_CONTENT_NOT_EXIST("유저가 포스트한 컨텐츠가 존재하지 않습니다."),
+    NO_AUTH_TO_ACCESS_API("해당 API 에 접근 권한이 없습니다.");
 
     private final String message;
 }
