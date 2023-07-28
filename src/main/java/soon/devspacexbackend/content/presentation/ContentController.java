@@ -40,7 +40,7 @@ public class ContentController {
             description = "메인 페이지용, ex) ?page=0&size=10&sort=id,DESC' => page, size 페이지네이션, sort 정렬이 가능, query param size, sort 생략시 기본값 size 10, sort id,DESC")
     @ResponseStatus(HttpStatus.OK)
     public List<ContentGetResDto> getAllContent(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return contentServiceImpl.getAllContent(pageable);
+        return contentServiceImpl.getAllContents(pageable);
     }
 
     @GetMapping("/{contentId}")
