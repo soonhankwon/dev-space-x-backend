@@ -23,7 +23,7 @@ class ContentTest {
                 "What is java?", "text", ContentPayType.PAY,500, 1L);
 
         Content content1 = new Content(dto, category);
-        Series series = new Series(new SeriesRegisterReqDto("series1", SeriesType.FREE, 1L, category), null);
+        Series series = new Series(new SeriesRegisterReqDto("series1", SeriesType.FREE, 1L), null);
         Content seriesContent = new Content(dto, category, series);
 
         assertThat(content1).isNotNull();
