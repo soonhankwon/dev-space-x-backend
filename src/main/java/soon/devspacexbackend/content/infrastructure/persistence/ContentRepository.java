@@ -8,7 +8,7 @@ import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.series.domain.Series;
 
 @Repository
-public interface ContentRepository extends JpaRepository<Content, Long> {
+public interface ContentRepository extends JpaRepository<Content, Long>, ContentRepositoryCustom {
 
     Page<Content> findAll(Pageable pageable);
 
