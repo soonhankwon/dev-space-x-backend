@@ -7,6 +7,9 @@ import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 import soon.devspacexbackend.content.presentation.dto.ContentUpdateReqDto;
+import soon.devspacexbackend.series.domain.Series;
+import soon.devspacexbackend.series.domain.SeriesType;
+import soon.devspacexbackend.series.presentation.dto.SeriesRegisterReqDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,20 +18,26 @@ class ContentTest {
     @Test
     @DisplayName("컨텐츠 생성 테스트")
     void createContent() {
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         ContentRegisterReqDto dto = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY,500, null);
+                "What is java?", "text", ContentPayType.PAY,500, 1L);
 
-        Content content = new Content(dto);
-        assertThat(content).isNotNull();
+        Content content1 = new Content(dto, category);
+        Series series = new Series(new SeriesRegisterReqDto("series1", SeriesType.FREE, 1L, category), null);
+        Content seriesContent = new Content(dto, category, series);
+
+        assertThat(content1).isNotNull();
+        assertThat(seriesContent).isNotNull();
     }
 
     @Test
     @DisplayName("컨텐츠 다크매터 getter 테스트")
     void getDarkMatter() {
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         ContentRegisterReqDto dto = new ContentRegisterReqDto(
                 "What is java?", "text", ContentPayType.PAY,500, null);
 
-        Content content = new Content(dto);
+        Content content = new Content(dto, category);
         assertThat(content.getDarkMatter()).isEqualTo(500);
     }
 
@@ -93,9 +102,10 @@ class ContentTest {
     @Test
     @DisplayName("컨텐츠 타입이 유료이면 true")
     void isTypePay() {
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
                 "What is java?", "text", ContentPayType.PAY,100, null);
-        Content content1 = new Content(dto1);
+        Content content1 = new Content(dto1, category);
 
         assertThat(content1.isTypePay()).isTrue();
     }
@@ -103,16 +113,16 @@ class ContentTest {
     @Test
     @DisplayName("컨텐츠 업데이트 테스트")
     void update() {
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
                 "What is java?", "text", ContentPayType.PAY,100, null);
-        Content content1 = new Content(dto1);
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
+        Content content1 = new Content(dto1, category);
 
         ContentUpdateReqDto updateDto = new ContentUpdateReqDto("What is spring?", "text", ContentPayType.PAY,200);
 
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
                 "What is java?", "text", ContentPayType.PAY,100, null);
-        Content content2 = new Content(dto2);
+        Content content2 = new Content(dto2, category);
 
         content2.update(updateDto, category);
         content1.update(updateDto, category);
