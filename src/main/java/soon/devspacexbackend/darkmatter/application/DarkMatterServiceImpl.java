@@ -21,11 +21,9 @@ public class DarkMatterServiceImpl implements DarkMatterService {
 
     @Override
     @Transactional
-    public void changeUserDarkMatterByReview(User loginUser, Review review) {
-        if (review.isTypeLike()) {
-            loginUser.earn(1);
-            darkMatterHistoryRepository.save(new DarkMatterHistory(loginUser, ChangeType.CHARGE, 1));
-        }
+    public void increaseUserDarkMatter(User loginUser) {
+        loginUser.earn(1);
+        darkMatterHistoryRepository.save(new DarkMatterHistory(loginUser, ChangeType.CHARGE, 1));
     }
 
     @Override
