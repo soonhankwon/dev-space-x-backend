@@ -9,14 +9,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
-import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterResDto;
 import soon.devspacexbackend.series.application.SeriesService;
-import soon.devspacexbackend.series.presentation.dto.SeriesUpdateResDto;
-import soon.devspacexbackend.series.presentation.dto.SeriesGetResDto;
-import soon.devspacexbackend.series.presentation.dto.SeriesRegisterReqDto;
-import soon.devspacexbackend.series.presentation.dto.SeriesRegisterResDto;
-import soon.devspacexbackend.series.presentation.dto.SeriesUpdateReqDto;
+import soon.devspacexbackend.series.presentation.dto.*;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.web.application.SessionService;
 
@@ -44,7 +39,7 @@ public class SeriesController {
     @PostMapping("/{seriesId}")
     @Operation(summary = "시리즈 컨텐츠 등록 API")
     @ResponseStatus(HttpStatus.CREATED)
-    public ContentRegisterResDto registerSeriesContent(@PathVariable Long seriesId, @RequestBody ContentRegisterReqDto dto, HttpServletRequest request) {
+    public ContentRegisterResDto registerSeriesContent(@PathVariable Long seriesId, @RequestBody SeriesContentRegisterReqDto dto, HttpServletRequest request) {
         User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         seriesServiceImpl.registerSeriesContent(seriesId, dto, loginUser);
         return new ContentRegisterResDto();
