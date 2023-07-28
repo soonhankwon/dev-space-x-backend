@@ -12,7 +12,7 @@ public interface ContentService {
 
     void registerContent(ContentRegisterReqDto dto, User loginUser);
 
-    List<ContentGetResDto> getAllContent(Pageable pageable);
+    List<ContentGetResDto> getAllContents(Pageable pageable);
 
     ContentGetResDto getContent(Long contentId, User loginUser);
 
