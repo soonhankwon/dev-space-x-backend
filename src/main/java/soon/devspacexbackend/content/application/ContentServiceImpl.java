@@ -17,6 +17,8 @@ import soon.devspacexbackend.content.presentation.dto.ContentUpdateReqDto;
 import soon.devspacexbackend.darkmatter.domain.ChangeType;
 import soon.devspacexbackend.darkmatter.domain.DarkMatterHistory;
 import soon.devspacexbackend.darkmatter.infrastructure.persistence.DarkMatterHistoryRepository;
+import soon.devspacexbackend.exception.ApiException;
+import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.user.domain.BehaviorType;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.domain.UserContent;
@@ -40,7 +42,8 @@ public class ContentServiceImpl implements ContentService {
     @Transactional
     public void registerContent(ContentRegisterReqDto dto, User loginUser) {
         Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("not exists category"));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.CATEGORY_NOT_EXIST));
+
         Content content = new Content(dto, category);
         contentRepository.save(content);
         userContentRepository.save(new UserContent(loginUser, content, BehaviorType.POST));
@@ -59,54 +62,64 @@ public class ContentServiceImpl implements ContentService {
     @Transactional
     public ContentGetResDto getContent(Long contentId, User loginUser) {
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 컨텐츠를 찾을수 없습니다."));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
-        if (userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
-            Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET);
-            if (optionalUserContent.isPresent()) {
-                optionalUserContent.get().updateModifiedAt();
-            } else {
-                userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
-            }
+        if (isUserAlreadyAccessedContent(loginUser, content))
             return content.convertContentGetResDto(ContentGetType.VIEW);
-        }
-
-        if (userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)) {
-            UserContent userContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)
-                    .orElseThrow(() -> new RuntimeException("not exist"));
-            userContent.updateModifiedAt();
-            return content.convertContentGetResDto(ContentGetType.VIEW);
-        }
 
         if (content.isTypePay()) {
             loginUser.pay(content);
             darkMatterHistoryRepository.save(new DarkMatterHistory(loginUser, ChangeType.USE, content.getDarkMatter()));
-            //TODO 컨텐츠 제공자가 탈퇴했을 경우, 하지만 컨텐츠는 남아있을 경우 처리로직 필요
-            UserContent userContent = userContentRepository.findUserContentByContentAndType(content, BehaviorType.POST)
-                    .orElseThrow(() -> new RuntimeException("not exist content provider"));
-
             userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
 
+            UserContent userContent = userContentRepository.findUserContentByContentAndType(content, BehaviorType.POST)
+                    .orElseThrow(() -> new ApiException(CustomErrorCode.DB_DATA_ERROR));
             User contentProviderUser = userContent.getUser();
             contentProviderUser.earn(content.getDarkMatter());
             darkMatterHistoryRepository.save(new DarkMatterHistory(contentProviderUser, ChangeType.CHARGE, content.getDarkMatter()));
         }
+
         return content.convertContentGetResDto(ContentGetType.VIEW);
+    }
+
+    private boolean isUserAlreadyAccessedContent(User loginUser, Content content) {
+        if (hasUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
+            Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET);
+            if (optionalUserContent.isPresent()) {
+                optionalUserContent.get().updateModifiedAt();
+            }
+            else {
+                userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
+            }
+            return true;
+        }
+
+        if (hasUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)) {
+            UserContent userContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)
+                    .orElseThrow(() -> new ApiException(CustomErrorCode.DB_DATA_ERROR));
+            userContent.updateModifiedAt();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean hasUserContentByContentAndUserAndType(Content content, User loginUser, BehaviorType type) {
+        return userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, type);
     }
 
     @Override
     @Transactional
     public void updateContent(Long contentId, ContentUpdateReqDto dto, User loginUser) {
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("content not exist"));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
-        if (!userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
+        if (!hasUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
             throw new IllegalArgumentException("not exist registered content by user");
         }
 
-        if(dto.getCategoryId() != null) {
+        if (dto.getCategoryId() != null) {
             Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new IllegalArgumentException("category not exist"));
+                    .orElseThrow(() -> new ApiException(CustomErrorCode.CATEGORY_NOT_EXIST));
             content.update(dto, category);
         } else {
             content.update(dto, null);
@@ -117,7 +130,7 @@ public class ContentServiceImpl implements ContentService {
     @Transactional
     public void deleteContent(Long contentId, User loginUser) {
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("content not exist"));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
         Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST);
         if (optionalUserContent.isPresent()) {
