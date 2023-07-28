@@ -5,7 +5,8 @@ public enum UserType {
     PILOT(50L),
     SECOND_PILOT(100L),
     FIRST_PILOT(200L),
-    COMMANDER(500L);
+    COMMANDER(500L),
+    ADMIN(-1234L);
 
     private Long requiredLike;
 
