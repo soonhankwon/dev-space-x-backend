@@ -1,5 +1,6 @@
 package soon.devspacexbackend.content.infrastructure.persistence;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -24,10 +25,14 @@ public class ContentRepositoryImpl implements ContentRepositoryCustom{
         return queryFactory.select(content)
                 .from(content)
                 .join(review).on(content.id.eq(review.content.id))
-                .where(review.type.eq(type))
+                .where(typeEq(type))
                 .groupBy(content)
                 .orderBy(review.count().desc())
                 .limit(3)
                 .fetch();
+    }
+
+    private BooleanExpression typeEq(ReviewType type) {
+        return type == null ? null : review.type.eq(type);
     }
 }
