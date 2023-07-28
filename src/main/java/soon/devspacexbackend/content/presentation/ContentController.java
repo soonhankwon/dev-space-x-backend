@@ -51,6 +51,13 @@ public class ContentController {
         return contentServiceImpl.getContent(contentId, loginUser);
     }
 
+    @GetMapping("/top3")
+    @Operation(summary = "리뷰 좋아요 TOP3 컨텐츠 조회 API")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ContentGetResDto> getTop3Contents() {
+        return contentServiceImpl.getTop3Contents();
+    }
+
     @PatchMapping("/{contentId}")
     @Operation(summary = "컨텐츠 업데이트 API")
     @ResponseStatus(HttpStatus.OK)
