@@ -2,6 +2,8 @@ package soon.devspacexbackend.content.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import soon.devspacexbackend.category.domain.Category;
+import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,17 +27,19 @@ class ContentPayTypeTest {
     @Test
     @DisplayName("컨텐츠 타입이 무료일때 다크매터 검증 예외처리 테스트")
     void validateFreeTypeDarkMatter() {
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
                 "DEV", "SPACE X", ContentPayType.FREE,
                 100, 1L);
 
-        assertThatThrownBy(() -> new Content(dto1))
+        assertThatThrownBy(() -> new Content(dto1, category))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     @DisplayName("컨텐츠 타입이 유료일때 다크매터 검증 예외처리 테스트")
     void validatePayTypeDarkMatter() {
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         ContentRegisterReqDto dto1 = new ContentRegisterReqDto(
                 "DEV", "SPACE X", ContentPayType.PAY,
                 99, 1L);
@@ -43,9 +47,9 @@ class ContentPayTypeTest {
                 "DEV", "SPACE X", ContentPayType.PAY,
                 501, 1L);
 
-        assertThatThrownBy(() -> new Content(dto1))
+        assertThatThrownBy(() -> new Content(dto1, category))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new Content(dto2))
+        assertThatThrownBy(() -> new Content(dto2, category))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
