@@ -19,6 +19,7 @@ import soon.devspacexbackend.darkmatter.domain.DarkMatterHistory;
 import soon.devspacexbackend.darkmatter.infrastructure.persistence.DarkMatterHistoryRepository;
 import soon.devspacexbackend.exception.ApiException;
 import soon.devspacexbackend.exception.CustomErrorCode;
+import soon.devspacexbackend.review.domain.ReviewType;
 import soon.devspacexbackend.user.domain.BehaviorType;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.domain.UserContent;
@@ -58,6 +59,14 @@ public class ContentServiceImpl implements ContentService {
         Page<Content> contentPage = contentRepository.findAll(pageable);
 
         return contentPage.getContent().stream()
+                .map(i -> i.convertContentGetResDto(ContentGetType.PREVIEW))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ContentGetResDto> getTop3Contents() {
+        return contentRepository.findTop3ContentsByReviewType(ReviewType.LIKE)
+                .stream()
                 .map(i -> i.convertContentGetResDto(ContentGetType.PREVIEW))
                 .collect(Collectors.toList());
     }
