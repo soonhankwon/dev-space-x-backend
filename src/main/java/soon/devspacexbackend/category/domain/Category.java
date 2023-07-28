@@ -20,7 +20,7 @@ public class Category {
     private String name;
 
     public Category(CategoryRegisterReqDto dto) {
-        this.name = dto.getName().toUpperCase();
+        this.name = dto.getName().trim().toUpperCase();
     }
 
     public String getName() {
@@ -30,5 +30,4 @@ public class Category {
     public CategoryGetResDto convertCategoryGetResDto() {
         return new CategoryGetResDto(this.id, this.name);
     }
-
 }
