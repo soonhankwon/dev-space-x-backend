@@ -14,7 +14,8 @@ public enum CustomErrorCode {
     CATEGORY_NOT_EXIST("해당 카테고리가 존재하지 않습니다."),
     FREE_TYPE_MATTER_INVALID("무료 컨텐츠는 다크매터가 0 이어야합니다."),
     PAY_TYPE_MATTER_INVALID("유료 컨텐츠는 다크매터가 100이상 500이하 여야합니다."),
-    NOT_ENOUGH_DARK_MATTER("다크매터가 부족합니다.");
+    NOT_ENOUGH_DARK_MATTER("다크매터가 부족합니다."),
+    USER_POST_CONTENT_NOT_EXIST("유저가 포스트한 컨텐츠가 존재하지 않습니다.");
 
     private final String message;
 }
