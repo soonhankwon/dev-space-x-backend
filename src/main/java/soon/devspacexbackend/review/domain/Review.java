@@ -45,4 +45,8 @@ public class Review extends BaseTimeEntity {
     public boolean isTypeLike() {
         return this.type == ReviewType.LIKE;
     }
+
+    public Long getId() {
+        return this.id;
+    }
 }
