@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
 import soon.devspacexbackend.content.presentation.dto.ContentUpdateReqDto;
+import soon.devspacexbackend.review.domain.ReviewType;
 import soon.devspacexbackend.user.domain.User;
 
 import java.util.List;
@@ -20,5 +21,5 @@ public interface ContentService {
 
     void deleteContent(Long contentId, User loginUser);
 
-    List<ContentGetResDto> getTop3Contents();
+    List<ContentGetResDto> getTop3ContentsByReviewType(ReviewType type);
 }
