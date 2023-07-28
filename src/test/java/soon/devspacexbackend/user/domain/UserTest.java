@@ -2,6 +2,8 @@ package soon.devspacexbackend.user.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import soon.devspacexbackend.category.domain.Category;
+import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentPayType;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
@@ -47,6 +49,7 @@ class UserTest {
     @Test
     @DisplayName("유저 다크매터 지불 테스트 : 유저 다크매터 충분")
     void pay() {
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         UserSignupReqDto dto1 = new UserSignupReqDto(
                 "test@gmail.com", "tester", "1234");
 
@@ -58,7 +61,7 @@ class UserTest {
         user2.earn(4800);
 
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto("what is java?", "text", ContentPayType.PAY, 200, null);
-        Content content = new Content(dto2);
+        Content content = new Content(dto2, category);
 
         user1.pay(content);
 
@@ -68,6 +71,7 @@ class UserTest {
     @Test
     @DisplayName("유저 다크매터 지불 테스트 : 유저 다크매터 불충분 예외")
     void payUserHasNotEnoughMoney() {
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         UserSignupReqDto dto1 = new UserSignupReqDto(
                 "test@gmail.com", "tester", "1234");
 
@@ -75,7 +79,7 @@ class UserTest {
         user.earn(99);
 
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto("what is java?", "text", ContentPayType.PAY, 200, null);
-        Content content = new Content(dto2);
+        Content content = new Content(dto2, category);
 
         assertThatThrownBy(() -> user.pay(content)).isInstanceOf(ApiException.class);
     }
@@ -129,5 +133,15 @@ class UserTest {
         UserResignReqDto dto = new UserResignReqDto("1234");
 
         assertThat(user1.isPasswordValid(dto)).isTrue();
+    }
+
+    @Test
+    @DisplayName("유저가 Admin 이면 true")
+    void isTypeAdmin() {
+        UserSignupReqDto dto1 = new UserSignupReqDto(
+                "test@gmail.com", "tester", "1234");
+        User user1 = new User(dto1);
+
+        assertThat(user1.isTypeAdmin()).isFalse();
     }
 }
