@@ -39,6 +39,8 @@ public class User extends CreatedTimeEntity {
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
+    private Long exp;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserContent> userContents;
 
@@ -51,6 +53,7 @@ public class User extends CreatedTimeEntity {
         this.password = dto.getPassword();
         this.userType = UserType.CANDIDATE;
         this.darkMatter = MIN_POINT;
+        this.exp = MIN_POINT;
     }
 
     public Long getId() {
@@ -92,5 +95,27 @@ public class User extends CreatedTimeEntity {
 
     public boolean isTypeAdmin() {
         return this.userType == UserType.ADMIN;
+    }
+
+    public void earnExp() {
+        if(isTypeAdmin()) {
+            return;
+        }
+        this.exp++;
+        if(isExpAvailableUpgrade()) {
+            this.userType = UserType.ofAvailableUpgradeType(exp);
+        }
+    }
+
+    private boolean isExpAvailableUpgrade() {
+        return this.exp >= this.userType.getNextRequiredExp();
+    }
+
+    protected Long getExp() {
+        return this.exp;
+    }
+
+    protected UserType getUserType() {
+        return this.userType;
     }
 }
