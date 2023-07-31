@@ -12,6 +12,8 @@ import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentGetType;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
+import soon.devspacexbackend.exception.ApiException;
+import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.series.domain.Series;
 import soon.devspacexbackend.series.infrastructure.persistence.SeriesRepository;
 import soon.devspacexbackend.series.presentation.dto.SeriesContentRegisterReqDto;
@@ -87,9 +89,18 @@ class SeriesServiceImpl implements SeriesService {
     @Transactional
     public void updateSeries(Long seriesId, SeriesUpdateReqDto dto, User loginUser) {
         Series series = seriesRepository.findById(seriesId)
-                .orElseThrow(() -> new IllegalArgumentException("not exist series"));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.SERIES_NOT_EXIST));
 
         series.validateAuthWithUser(loginUser);
         series.update(dto);
+    }
+
+    @Override
+    public void deleteSeries(Long seriesId, User loginUser) {
+        Series series = seriesRepository.findById(seriesId)
+                .orElseThrow(() -> new ApiException(CustomErrorCode.SERIES_NOT_EXIST));
+
+        series.validateAuthWithUser(loginUser);
+        seriesRepository.delete(series);
     }
 }
