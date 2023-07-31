@@ -1,6 +1,7 @@
 package soon.devspacexbackend.content.presentation;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -10,12 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import soon.devspacexbackend.content.application.ContentService;
-import soon.devspacexbackend.content.presentation.dto.*;
+import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
+import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
+import soon.devspacexbackend.content.presentation.dto.ContentUpdateReqDto;
 import soon.devspacexbackend.exception.ApiException;
 import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.review.domain.ReviewType;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.web.application.SessionService;
+import soon.devspacexbackend.web.presentation.dto.GlobalResDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -31,11 +35,12 @@ public class ContentController {
 
     @PostMapping
     @Operation(summary = "컨텐츠 등록 API")
+    @ApiResponse(responseCode = "200", description = "컨텐츠 등록 완료")
     @ResponseStatus(HttpStatus.CREATED)
-    public ContentRegisterResDto registerContent(@RequestBody ContentRegisterReqDto dto, HttpServletRequest request) {
+    public GlobalResDto registerContent(@RequestBody ContentRegisterReqDto dto, HttpServletRequest request) {
         User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         contentServiceImpl.registerContent(dto, loginUser);
-        return new ContentRegisterResDto();
+        return new GlobalResDto("컨텐츠 등록 완료");
     }
 
     @GetMapping
@@ -70,18 +75,20 @@ public class ContentController {
     @PatchMapping("/{contentId}")
     @Operation(summary = "컨텐츠 업데이트 API")
     @ResponseStatus(HttpStatus.OK)
-    public ContentUpdateResDto updateContent(@PathVariable Long contentId, @Validated @RequestBody ContentUpdateReqDto dto, HttpServletRequest request) {
+    @ApiResponse(responseCode = "200", description = "컨텐츠 업데이트 완료")
+    public GlobalResDto updateContent(@PathVariable Long contentId, @Validated @RequestBody ContentUpdateReqDto dto, HttpServletRequest request) {
         User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         contentServiceImpl.updateContent(contentId, dto, loginUser);
-        return new ContentUpdateResDto();
+        return new GlobalResDto("컨텐츠 업데이트 완료");
     }
 
     @DeleteMapping("/{contentId}")
     @Operation(summary = "컨텐츠 삭제 API")
     @ResponseStatus(HttpStatus.OK)
-    public ContentDeleteResDto deleteContent(@PathVariable Long contentId, HttpServletRequest request) {
+    @ApiResponse(responseCode = "200", description = "컨텐츠 삭제 완료")
+    public GlobalResDto deleteContent(@PathVariable Long contentId, HttpServletRequest request) {
         User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         contentServiceImpl.deleteContent(contentId, loginUser);
-        return new ContentDeleteResDto();
+        return new GlobalResDto("컨텐츠 삭제 완료");
     }
 }
