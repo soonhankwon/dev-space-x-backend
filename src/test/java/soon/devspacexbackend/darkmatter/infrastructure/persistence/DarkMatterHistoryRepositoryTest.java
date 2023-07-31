@@ -4,6 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import soon.devspacexbackend.config.QuerydslConfig;
 import soon.devspacexbackend.darkmatter.domain.ChangeType;
 import soon.devspacexbackend.darkmatter.domain.DarkMatterHistory;
 import soon.devspacexbackend.user.domain.User;
@@ -16,6 +18,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@Import(QuerydslConfig.class)
 class DarkMatterHistoryRepositoryTest {
 
     @Autowired
