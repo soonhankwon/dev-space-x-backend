@@ -77,7 +77,7 @@ public class ContentServiceImpl implements ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
-        if (isUserAlreadyAccessedContent(loginUser, content))
+        if (isUserAlreadyHadContent(loginUser, content))
             return content.convertContentGetResDto(ContentGetType.VIEW);
 
         if (content.isTypePay()) {
@@ -102,8 +102,8 @@ public class ContentServiceImpl implements ContentService {
         userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
     }
 
-    private boolean isUserAlreadyAccessedContent(User loginUser, Content content) {
-        if (hasUserContentRecordByUserCaseByType(content, loginUser, BehaviorType.POST)) {
+    private boolean isUserAlreadyHadContent(User loginUser, Content content) {
+        if (hasUserContentPostRecord(content, loginUser)) {
             Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET);
             if (optionalUserContent.isPresent()) {
                 optionalUserContent.get().updateModifiedAt();
@@ -114,7 +114,7 @@ public class ContentServiceImpl implements ContentService {
             return true;
         }
 
-        if (hasUserContentRecordByUserCaseByType(content, loginUser, BehaviorType.GET)) {
+        if (hasUserContentGetRecord(content, loginUser)) {
             UserContent userContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)
                     .orElseThrow(() -> new ApiException(CustomErrorCode.DB_DATA_ERROR));
             userContent.updateModifiedAt();
@@ -123,8 +123,12 @@ public class ContentServiceImpl implements ContentService {
         return false;
     }
 
-    private boolean hasUserContentRecordByUserCaseByType(Content content, User loginUser, BehaviorType type) {
-        return userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, type);
+    private boolean hasUserContentPostRecord(Content content, User loginUser) {
+        return userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST);
+    }
+
+    private boolean hasUserContentGetRecord(Content content, User loginUser) {
+        return userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET);
     }
 
     @Override
@@ -133,7 +137,7 @@ public class ContentServiceImpl implements ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
-        if (!hasUserContentRecordByUserCaseByType(content, loginUser, BehaviorType.POST)) {
+        if (!hasUserContentPostRecord(content, loginUser)) {
             throw new ApiException(CustomErrorCode.USER_POST_CONTENT_NOT_EXIST);
         }
 
