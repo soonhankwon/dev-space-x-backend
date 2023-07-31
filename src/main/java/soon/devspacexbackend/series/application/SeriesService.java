@@ -20,4 +20,6 @@ public interface SeriesService {
     List<ContentGetResDto> getSeriesContents(Long seriesId, Pageable pageable);
 
     void updateSeries(Long seriesId, SeriesUpdateReqDto dto, User loginUser);
+
+    void deleteSeries(Long seriesId, User loginUser);
 }
