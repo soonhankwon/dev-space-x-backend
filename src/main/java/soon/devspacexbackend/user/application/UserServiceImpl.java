@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
+import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
 import soon.devspacexbackend.exception.ApiException;
 import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.user.domain.BehaviorType;
@@ -48,10 +49,19 @@ public class UserServiceImpl implements UserService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
-        List<UserContent> userContent = userContentRepository.findUserContentsByContentAndType(content, BehaviorType.GET);
+        List<UserContent> userContents = userContentRepository.findUserContentsByContentAndType(content, BehaviorType.GET);
 
-        return userContent.stream()
+        return userContents.stream()
                 .map(UserContent::convertUserHistoryGetContentResDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ContentGetResDto> getUserContents(User loginUser) {
+        return userContentRepository.findUserContentsByUserAndType(loginUser, BehaviorType.GET)
+                .stream()
+                .map(UserContent::convertContentGetResDto)
                 .collect(Collectors.toList());
     }
 }
