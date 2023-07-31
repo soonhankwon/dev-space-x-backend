@@ -2,6 +2,7 @@ package soon.devspacexbackend.series.domain;
 
 import lombok.NoArgsConstructor;
 import soon.devspacexbackend.category.domain.Category;
+import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentPayType;
 import soon.devspacexbackend.series.presentation.dto.SeriesContentRegisterReqDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesGetResDto;
@@ -10,6 +11,7 @@ import soon.devspacexbackend.series.presentation.dto.SeriesUpdateReqDto;
 import soon.devspacexbackend.user.domain.User;
 
 import javax.persistence.*;
+import java.util.List;
 
 @NoArgsConstructor
 @Entity
@@ -34,6 +36,9 @@ public class Series {
     @OneToOne
     @JoinColumn(name = "category_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Category category;
+
+    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Content> contents;
 
     public Series(SeriesRegisterReqDto dto, User loginUser) {
         this.name = dto.getSeriesName();
