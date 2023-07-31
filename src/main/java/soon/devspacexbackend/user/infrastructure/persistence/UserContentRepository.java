@@ -20,4 +20,6 @@ public interface UserContentRepository extends JpaRepository<UserContent, Long> 
     List<UserContent> findUserContentsByContentAndType(Content content, BehaviorType type);
 
     Optional<UserContent> findUserContentByContentAndType(Content content, BehaviorType type);
+
+    List<UserContent> findUserContentsByUserAndType(User user, BehaviorType get);
 }
