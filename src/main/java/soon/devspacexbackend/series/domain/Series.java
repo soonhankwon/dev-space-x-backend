@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor;
 import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentPayType;
+import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.series.presentation.dto.SeriesContentRegisterReqDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesGetResDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesRegisterReqDto;
@@ -63,10 +64,10 @@ public class Series {
     public void validateSeriesTypeMatchContentPayType(SeriesContentRegisterReqDto dto) {
         boolean isSeriesTypePay = isSeriesTypePay();
         if(isSeriesTypePay && dto.getPayType() == ContentPayType.FREE)
-            throw new IllegalArgumentException("컨텐츠 결제 타입이 유료여야 합니다.");
+            throw new IllegalArgumentException(CustomErrorCode.SERIES_AND_CONTENT_PAY_TYPE_MISS_MATCH.getMessage());
 
         if(!isSeriesTypePay && dto.getPayType() == ContentPayType.PAY)
-            throw new IllegalArgumentException("컨텐츠 결제 타입이 무료여야 합니다.");
+            throw new IllegalArgumentException(CustomErrorCode.SERIES_AND_CONTENT_PAY_TYPE_MISS_MATCH.getMessage());
     }
 
     private boolean isSeriesTypePay() {
@@ -81,8 +82,21 @@ public class Series {
         this.type = dto.getType();
     }
 
+    public void update(SeriesUpdateReqDto dto, Category category) {
+        if(!dto.getName().isEmpty()) {
+            this.name = dto.getName();
+        }
+        this.status = dto.getStatus();
+        this.type = dto.getType();
+        this.category = category;
+    }
+
     public void validateAuthWithUser(User loginUser) {
         if(loginUser != this.user)
-            throw new IllegalArgumentException("no auth to update this series");
+            throw new IllegalArgumentException("no auth to this series");
+    }
+
+    public boolean isCategoryIdSame(Long categoryId) {
+        return this.category.isIdSame(categoryId);
     }
 }
