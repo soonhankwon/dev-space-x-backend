@@ -2,6 +2,7 @@ package soon.devspacexbackend.content.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import soon.devspacexbackend.review.domain.ReviewType;
 import soon.devspacexbackend.user.domain.BehaviorType;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.domain.UserContent;
+import soon.devspacexbackend.user.event.UserContentGetEvent;
 import soon.devspacexbackend.user.infrastructure.persistence.UserContentRepository;
 
 import java.util.List;
@@ -38,6 +40,7 @@ public class ContentServiceImpl implements ContentService {
     private final CategoryRepository categoryRepository;
     private final UserContentRepository userContentRepository;
     private final DarkMatterHistoryRepository darkMatterHistoryRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -77,6 +80,9 @@ public class ContentServiceImpl implements ContentService {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
+        UserContent userContent = userContentRepository.findUserContentByContentAndType(content, BehaviorType.POST)
+                .orElseThrow(() -> new ApiException(CustomErrorCode.DB_DATA_ERROR));
+
         if (isUserAlreadyHadContent(loginUser, content))
             return content.convertContentGetResDto(ContentGetType.VIEW);
 
@@ -84,9 +90,6 @@ public class ContentServiceImpl implements ContentService {
             loginUser.pay(content);
             darkMatterHistoryRepository.save(new DarkMatterHistory(loginUser, ChangeType.USE, content.getDarkMatter()));
             saveContentGetRecordByUser(loginUser, content);
-
-            UserContent userContent = userContentRepository.findUserContentByContentAndType(content, BehaviorType.POST)
-                    .orElseThrow(() -> new ApiException(CustomErrorCode.DB_DATA_ERROR));
 
             User contentProviderUser = userContent.getUser();
             contentProviderUser.earn(content.getDarkMatter());
@@ -104,20 +107,12 @@ public class ContentServiceImpl implements ContentService {
 
     private boolean isUserAlreadyHadContent(User loginUser, Content content) {
         if (hasUserContentPostRecord(content, loginUser)) {
-            Optional<UserContent> optionalUserContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET);
-            if (optionalUserContent.isPresent()) {
-                optionalUserContent.get().updateModifiedAt();
-            }
-            else {
-                saveContentGetRecordByUser(loginUser, content);
-            }
+            applicationEventPublisher.publishEvent(new UserContentGetEvent(loginUser, content, BehaviorType.POST));
             return true;
         }
 
         if (hasUserContentGetRecord(content, loginUser)) {
-            UserContent userContent = userContentRepository.findUserContentByContentAndUserAndType(content, loginUser, BehaviorType.GET)
-                    .orElseThrow(() -> new ApiException(CustomErrorCode.DB_DATA_ERROR));
-            userContent.updateModifiedAt();
+            applicationEventPublisher.publishEvent(new UserContentGetEvent(loginUser, content, BehaviorType.GET));
             return true;
         }
         return false;
