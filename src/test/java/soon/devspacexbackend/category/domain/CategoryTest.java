@@ -6,6 +6,7 @@ import soon.devspacexbackend.category.presentation.dto.CategoryGetResDto;
 import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CategoryTest {
 
@@ -49,5 +50,14 @@ class CategoryTest {
         CategoryGetResDto res = category1.convertCategoryGetResDto();
         assertThat(res.getName()).isEqualTo("JAVA");
         assertThat(res.getId()).isNull();
+    }
+
+    @Test
+    @DisplayName("카테고리 ID가 같은지 : 같으면 true")
+    void isCategoryIdSame() {
+        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
+
+        // Generated Value -> DB 저장 후 ID 확인 가능
+        assertThatThrownBy(() -> category.isIdSame(1L)).isInstanceOf(NullPointerException.class);
     }
 }
