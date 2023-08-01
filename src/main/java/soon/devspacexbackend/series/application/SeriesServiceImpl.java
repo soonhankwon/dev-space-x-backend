@@ -42,10 +42,10 @@ class SeriesServiceImpl implements SeriesService {
     @Transactional
     public void registerSeries(SeriesRegisterReqDto dto, User loginUser) {
         Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new IllegalArgumentException("not exist category"));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.CATEGORY_NOT_EXIST));
 
         if (seriesRepository.existsSeriesByName(dto.getSeriesName())) {
-            throw new IllegalArgumentException("중복된 시리즈 제목이 존재합니다.");
+            throw new IllegalArgumentException(CustomErrorCode.DUPLICATED_NAME.getMessage());
         }
         Series series = new Series(new SeriesRegisterReqDto(dto, category), loginUser);
         seriesRepository.save(series);
@@ -55,7 +55,7 @@ class SeriesServiceImpl implements SeriesService {
     @Transactional
     public void registerSeriesContent(Long seriesId, SeriesContentRegisterReqDto dto, User loginUser) {
         Series series = seriesRepository.findById(seriesId)
-                .orElseThrow(() -> new IllegalArgumentException("not exists series"));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.SERIES_NOT_EXIST));
         series.validateSeriesTypeMatchContentPayType(dto);
 
         Content content = new Content(dto, series);
@@ -76,7 +76,7 @@ class SeriesServiceImpl implements SeriesService {
     @Override
     public List<ContentGetResDto> getSeriesContents(Long seriesId, Pageable pageable) {
         Series series = seriesRepository.findById(seriesId)
-                .orElseThrow(() -> new IllegalArgumentException("not exist series"));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.SERIES_NOT_EXIST));
 
         Page<Content> contentsPage = contentRepository.findAllBySeries(series, pageable);
 
@@ -90,9 +90,17 @@ class SeriesServiceImpl implements SeriesService {
     public void updateSeries(Long seriesId, SeriesUpdateReqDto dto, User loginUser) {
         Series series = seriesRepository.findById(seriesId)
                 .orElseThrow(() -> new ApiException(CustomErrorCode.SERIES_NOT_EXIST));
-
         series.validateAuthWithUser(loginUser);
-        series.update(dto);
+
+        if(series.isCategoryIdSame(dto.getCategoryId())) {
+            series.update(dto);
+            return;
+        }
+
+        Category category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new ApiException(CustomErrorCode.CATEGORY_NOT_EXIST));
+
+        series.update(dto, category);
     }
 
     @Override
