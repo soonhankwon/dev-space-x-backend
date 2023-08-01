@@ -26,10 +26,14 @@ public class Category {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public CategoryGetResDto convertCategoryGetResDto() {
         return new CategoryGetResDto(this.id, this.name);
+    }
+
+    public boolean isIdSame(Long categoryId) {
+        return this.id.equals(categoryId);
     }
 }
