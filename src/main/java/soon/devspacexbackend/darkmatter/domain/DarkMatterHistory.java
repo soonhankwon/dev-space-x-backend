@@ -1,5 +1,6 @@
 package soon.devspacexbackend.darkmatter.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import soon.devspacexbackend.darkmatter.presentation.dto.DarkMatterGetHistoryResDto;
 import soon.devspacexbackend.user.domain.User;
@@ -8,6 +9,7 @@ import soon.devspacexbackend.utils.CreatedTimeEntity;
 import javax.persistence.*;
 
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @Entity
 public class DarkMatterHistory extends CreatedTimeEntity {
 
