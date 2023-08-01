@@ -17,6 +17,9 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Entity
+@Table(name = "content", indexes = {
+        @Index (name = "fk_content_series_idx", columnList = "series_id"),
+        @Index (name = "fk_content_category_idx", columnList = "category_id")})
 public class Content extends BaseTimeEntity {
 
     public static final int FREE_MATTER_VALUE = 0;
@@ -36,11 +39,11 @@ public class Content extends BaseTimeEntity {
 
     private Integer darkMatter;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "series_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Series series;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Category category;
 
