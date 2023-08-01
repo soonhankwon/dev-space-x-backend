@@ -102,9 +102,12 @@ class ContentServiceImplTest {
     @DisplayName("컨텐츠 상세조회 서비스 테스트 : 사용자가 컨텐츠 사용이력이 없을 경우, 컨텐츠는 무료")
     void getContent() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
+        User contentProvider = new User(new UserSignupReqDto("dev1@space.com", "provider", "1234"));
         Category category = new Category(new CategoryRegisterReqDto("JAVA"));
         Content content = new Content(new ContentRegisterReqDto("title1", "text1234567890", ContentPayType.FREE, 0, 1L), category);
+
         when(contentRepository.findById(1L)).thenReturn(Optional.of(content));
+        when(userContentRepository.findUserContentByContentAndType(content, BehaviorType.POST)).thenReturn(Optional.of(new UserContent(contentProvider, content, BehaviorType.POST)));
         when(userContentRepository.existsUserContentByContentAndUserAndType(content, user, BehaviorType.POST)).thenReturn(false);
         when(userContentRepository.existsUserContentByContentAndUserAndType(content, user, BehaviorType.GET)).thenReturn(false);
 
