@@ -11,6 +11,7 @@ public enum CustomErrorCode {
     DUPLICATED_NAME("중복된 이름이 존재합니다."),
     PASSWORD_INVALID("패스워드가 정확하지 않습니다."),
     CONTENT_NOT_EXIST("해당 컨텐츠가 존재하지 않습니다."),
+    SERIES_AND_CONTENT_PAY_TYPE_MISS_MATCH("시리즈와 컨텐츠의 결제 유형이 다릅니다."),
     CATEGORY_NOT_EXIST("해당 카테고리가 존재하지 않습니다."),
     SERIES_NOT_EXIST("해당 시리즈가 존재하지 않습니다."),
     FREE_TYPE_MATTER_INVALID("무료 컨텐츠는 다크매터가 0 이어야합니다."),
