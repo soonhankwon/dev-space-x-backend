@@ -34,7 +34,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void registerReview(Long contentId, User loginUser, ReviewRegisterReqDto dto) {
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("not exist content"));
+                .orElseThrow(() -> new ApiException(CustomErrorCode.CONTENT_NOT_EXIST));
 
         if(userContentRepository.existsUserContentByContentAndUserAndType(content, loginUser, BehaviorType.POST)) {
             throw new IllegalArgumentException("can't review myself");
