@@ -3,6 +3,7 @@ package soon.devspacexbackend.user.domain;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.exception.ApiException;
 import soon.devspacexbackend.exception.CustomErrorCode;
@@ -41,9 +42,11 @@ public class User extends CreatedTimeEntity {
 
     private Long exp;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserContent> userContents;
 
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> review;
 
