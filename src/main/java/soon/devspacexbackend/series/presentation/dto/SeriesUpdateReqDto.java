@@ -27,4 +27,8 @@ public final class SeriesUpdateReqDto {
     @NotNull(message = "시리즈 타입은 null 일 수 없습니다.")
     @Schema(description = "시리즈 타입", example = "FREE")
     private final SeriesType type;
+
+    @NotNull(message = "카테고리 ID는 null 일 수 없습니다.")
+    @Schema(description = "카테고리 ID", example = "2")
+    private final Long categoryId;
 }
