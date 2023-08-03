@@ -1,6 +1,7 @@
 package soon.devspacexbackend.series.domain;
 
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentPayType;
@@ -30,14 +31,14 @@ public class Series {
     @Enumerated(EnumType.STRING)
     private SeriesType type;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @Enumerated(EnumType.STRING)
     private Category category;
 
+    @BatchSize(size = 1000)
     @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Content> contents;
 
@@ -58,7 +59,7 @@ public class Series {
     }
 
     public SeriesGetResDto convertSeriesGetResDto() {
-        return new SeriesGetResDto(this.id, this.category.getName(),this.name, this.status, this.type, this.user.getName());
+        return new SeriesGetResDto(this.id, this.category.name(),this.name, this.status, this.type, this.user.getName());
     }
 
     public void validateSeriesTypeMatchContentPayType(SeriesContentRegisterReqDto dto) {
@@ -82,21 +83,8 @@ public class Series {
         this.type = dto.getType();
     }
 
-    public void update(SeriesUpdateReqDto dto, Category category) {
-        if(!dto.getName().isEmpty()) {
-            this.name = dto.getName();
-        }
-        this.status = dto.getStatus();
-        this.type = dto.getType();
-        this.category = category;
-    }
-
     public void validateAuthWithUser(User loginUser) {
         if(loginUser != this.user)
             throw new IllegalArgumentException("no auth to this series");
-    }
-
-    public boolean isCategoryIdSame(Long categoryId) {
-        return this.category.isIdSame(categoryId);
     }
 }
