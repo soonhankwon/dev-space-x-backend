@@ -8,7 +8,7 @@ import soon.devspacexbackend.user.domain.User;
 
 @Getter
 @AllArgsConstructor
-public final class UserContentGetEvent {
+public final class UserContentEvent {
 
     private final User user;
     private final Content content;
