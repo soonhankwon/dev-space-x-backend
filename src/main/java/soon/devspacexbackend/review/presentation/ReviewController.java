@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import soon.devspacexbackend.review.application.ReviewService;
 import soon.devspacexbackend.review.presentation.dto.ReviewRegisterReqDto;
@@ -28,7 +29,7 @@ public class ReviewController {
     @Operation(summary = "유저 컨텐츠 리뷰 API")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponse(responseCode = "201", description = "리뷰 등록 완료")
-    public GlobalResDto registerReview(@PathVariable Long contentId, @RequestBody ReviewRegisterReqDto dto, HttpServletRequest request) {
+    public GlobalResDto registerReview(@PathVariable Long contentId, @Validated @RequestBody ReviewRegisterReqDto dto, HttpServletRequest request) {
         User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         reviewServiceIml.registerReview(contentId, loginUser, dto);
         return new GlobalResDto("리뷰 등록 완료");
@@ -39,7 +40,7 @@ public class ReviewController {
     @ResponseStatus(HttpStatus.OK)
     @ApiResponse(responseCode = "200", description = "리뷰 수정 완료")
     public GlobalResDto updateReview(@PathVariable Long reviewId,
-                                           @RequestBody ReviewUpdateReqDto dto, HttpServletRequest request) {
+                                     @Validated @RequestBody ReviewUpdateReqDto dto, HttpServletRequest request) {
         User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         reviewServiceIml.updateReview(reviewId, loginUser, dto);
         return new GlobalResDto("리뷰 수정 완료");

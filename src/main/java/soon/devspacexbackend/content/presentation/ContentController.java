@@ -35,9 +35,9 @@ public class ContentController {
 
     @PostMapping
     @Operation(summary = "컨텐츠 등록 API")
-    @ApiResponse(responseCode = "200", description = "컨텐츠 등록 완료")
+    @ApiResponse(responseCode = "201", description = "컨텐츠 등록 완료")
     @ResponseStatus(HttpStatus.CREATED)
-    public GlobalResDto registerContent(@RequestBody ContentRegisterReqDto dto, HttpServletRequest request) {
+    public GlobalResDto registerContent(@Validated @RequestBody ContentRegisterReqDto dto, HttpServletRequest request) {
         User loginUser = sessionServiceImpl.getLoginUserBySession(request);
         contentServiceImpl.registerContent(dto, loginUser);
         return new GlobalResDto("컨텐츠 등록 완료");
