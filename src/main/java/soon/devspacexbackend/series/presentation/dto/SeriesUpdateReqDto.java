@@ -3,6 +3,7 @@ package soon.devspacexbackend.series.presentation.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.series.domain.SeriesStatus;
 import soon.devspacexbackend.series.domain.SeriesType;
 
@@ -28,7 +29,7 @@ public final class SeriesUpdateReqDto {
     @Schema(description = "시리즈 타입", example = "FREE")
     private final SeriesType type;
 
-    @NotNull(message = "카테고리 ID는 null 일 수 없습니다.")
-    @Schema(description = "카테고리 ID", example = "2")
-    private final Long categoryId;
+    @NotNull(message = "카테고리는 null 일 수 없습니다.")
+    @Schema(description = "시리즈 카테고리", example = "JAVA")
+    private final Category category;
 }
