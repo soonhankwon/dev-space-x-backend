@@ -6,8 +6,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentGetType;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
@@ -34,20 +32,16 @@ import java.util.stream.Collectors;
 class SeriesServiceImpl implements SeriesService {
 
     private final SeriesRepository seriesRepository;
-    private final CategoryRepository categoryRepository;
     private final ContentRepository contentRepository;
     private final UserContentRepository userContentRepository;
 
     @Override
     @Transactional
     public void registerSeries(SeriesRegisterReqDto dto, User loginUser) {
-        Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new ApiException(CustomErrorCode.CATEGORY_NOT_EXIST));
-
         if (seriesRepository.existsSeriesByName(dto.getSeriesName())) {
             throw new IllegalArgumentException(CustomErrorCode.DUPLICATED_NAME.getMessage());
         }
-        Series series = new Series(new SeriesRegisterReqDto(dto, category), loginUser);
+        Series series = new Series(dto, loginUser);
         seriesRepository.save(series);
     }
 
@@ -91,16 +85,7 @@ class SeriesServiceImpl implements SeriesService {
         Series series = seriesRepository.findById(seriesId)
                 .orElseThrow(() -> new ApiException(CustomErrorCode.SERIES_NOT_EXIST));
         series.validateAuthWithUser(loginUser);
-
-        if(series.isCategoryIdSame(dto.getCategoryId())) {
-            series.update(dto);
-            return;
-        }
-
-        Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new ApiException(CustomErrorCode.CATEGORY_NOT_EXIST));
-
-        series.update(dto, category);
+        series.update(dto);
     }
 
     @Override
