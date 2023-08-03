@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/darkmatters")
-@Tag(name = "다크메터 이력 관련 API")
+@Tag(name = "다크매터 이력 관련 API")
 public class DarkMatterHistoryController {
 
     private final SessionService sessionServiceImpl;
