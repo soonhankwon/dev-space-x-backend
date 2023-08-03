@@ -20,7 +20,7 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @Table(name = "`user`", indexes = {
-        @Index(name = "fk_user_email_idx", columnList = "email")})
+        @Index(name = "idx_user_email_idx", columnList = "email")})
 public class User extends CreatedTimeEntity {
 
     private static final Long MIN_POINT = 0L;

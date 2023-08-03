@@ -21,7 +21,7 @@ import java.util.List;
 @Entity
 @Table(name = "content", indexes = {
         @Index(name = "fk_content_series_idx", columnList = "series_id"),
-        @Index(name = "fk_content_category_idx", columnList = "category")})
+        @Index(name = "idx_content_category_idx", columnList = "category")})
 public class Content extends BaseTimeEntity {
 
     public static final int FREE_MATTER_VALUE = 0;

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Table(name = "user_content", indexes = {
         @Index (name = "fk_user_content_user_idx", columnList = "user_id"),
         @Index (name = "fk_user_content_content_idx", columnList = "content_id"),
-        @Index (name = "fk_user_content_type_idx", columnList = "type")})
+        @Index (name = "idx_user_content_type_idx", columnList = "type")})
 public class UserContent extends CreatedTimeEntity {
 
     @Id
