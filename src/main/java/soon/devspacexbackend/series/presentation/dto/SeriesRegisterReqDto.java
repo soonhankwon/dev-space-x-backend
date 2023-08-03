@@ -1,19 +1,19 @@
 package soon.devspacexbackend.series.presentation.dto;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.series.domain.SeriesType;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "시리즈 등록 요청 DTO")
 public final class SeriesRegisterReqDto {
 
@@ -26,25 +26,7 @@ public final class SeriesRegisterReqDto {
     @Schema(description = "시리즈 타입", example = "FREE")
     private SeriesType seriesType;
 
-    @NotNull(message = "시리즈의 카테고리 ID는 null 일 수 없습니다.")
-    @Min(1)
-    @Schema(description = "카테고리 ID", example = "1")
-    private Long categoryId;
-
-    @Hidden
+    @NotNull(message = "시리즈의 카테고리는 null 일 수 없습니다.")
+    @Schema(description = "카테고리", example = "JAVA")
     private Category category;
-
-    public SeriesRegisterReqDto(String seriesName, SeriesType seriesType, Long categoryId) {
-        this.seriesName = seriesName;
-        this.seriesType = seriesType;
-        this.categoryId = categoryId;
-        this.category = null;
-    }
-
-    public SeriesRegisterReqDto(SeriesRegisterReqDto dto, Category category) {
-        this.seriesName = dto.getSeriesName();
-        this.seriesType = dto.getSeriesType();
-        this.categoryId = dto.getCategoryId();
-        this.category = category;
-    }
 }
