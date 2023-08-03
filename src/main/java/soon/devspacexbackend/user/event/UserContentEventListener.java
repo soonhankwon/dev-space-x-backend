@@ -7,11 +7,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.exception.ApiException;
 import soon.devspacexbackend.exception.CustomErrorCode;
 import soon.devspacexbackend.user.domain.BehaviorType;
-import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.domain.UserContent;
 import soon.devspacexbackend.user.infrastructure.persistence.UserContentRepository;
 
@@ -20,13 +18,13 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class UserContentGetEventListener {
+public class UserContentEventListener {
 
     private final UserContentRepository userContentRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleUserContentGetEventCaseByExistRecordType(UserContentGetEvent event) {
+    public void handleUserContentEventCaseByExistBehaviorType(UserContentEvent event) {
         log.info("EVENT ON");
 
         if(event.getBehaviorType() == BehaviorType.POST) {
@@ -35,7 +33,7 @@ public class UserContentGetEventListener {
                 optionalUserContent.get().setModifiedAtNow();
             }
             else {
-                saveContentGetRecordByUser(event.getUser(), event.getContent());
+                event.getUser().addUserContent(new UserContent(event));
             }
         } else {
             UserContent userContent = userContentRepository.findUserContentByContentAndUserAndType(event.getContent(), event.getUser(), BehaviorType.GET)
@@ -43,9 +41,5 @@ public class UserContentGetEventListener {
             userContent.setModifiedAtNow();
         }
         log.info("EVENT OFF");
-    }
-
-    private void saveContentGetRecordByUser(User loginUser, Content content) {
-        userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
     }
 }
