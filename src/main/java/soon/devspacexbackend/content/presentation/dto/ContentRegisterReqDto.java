@@ -3,6 +3,7 @@ package soon.devspacexbackend.content.presentation.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.content.domain.ContentPayType;
 
 import javax.validation.constraints.*;
@@ -31,8 +32,7 @@ public final class ContentRegisterReqDto {
     @Schema(description = "다크매터", example = "0")
     private final Integer darkMatter;
 
-    @NotNull(message = "일반 컨텐츠의 카테고리 ID는 null 일 수 없습니다.")
-    @Min(1)
-    @Schema(description = "컨텐츠 카테고리 ID", example = "1")
-    private final Long categoryId;
+    @NotNull(message = "카테고리는 Null 일 수 없습니다.")
+    @Schema(description = "컨텐츠 카테고리", example = "JAVA")
+    private final Category category;
 }
