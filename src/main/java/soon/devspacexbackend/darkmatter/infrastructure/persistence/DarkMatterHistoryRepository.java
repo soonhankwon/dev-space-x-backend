@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface DarkMatterHistoryRepository extends JpaRepository<DarkMatterHistory, Long> {
     List<DarkMatterHistory> findDarkMatterHistoriesByUserOrderByCreatedAtDesc(User user);
+
+    void deleteAllByUser(User user);
 }
