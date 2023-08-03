@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
-import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.config.QuerydslConfig;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentPayType;
@@ -32,9 +30,6 @@ class ReviewRepositoryTest {
     ContentRepository contentRepository;
 
     @Autowired
-    CategoryRepository categoryRepository;
-
-    @Autowired
     UserRepository userRepository;
 
     @Autowired
@@ -48,11 +43,9 @@ class ReviewRepositoryTest {
         User user = new User(dto1);
         userRepository.save(user);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY, 500, 1L);
-        Content content = new Content(dto, category);
+                "What is java?", "text", ContentPayType.PAY, 500, Category.JAVA);
+        Content content = new Content(dto);
         contentRepository.save(content);
 
         ReviewRegisterReqDto dto2 = new ReviewRegisterReqDto(ReviewType.LIKE, "I LIKE THIS CONTENT");
@@ -71,11 +64,9 @@ class ReviewRepositoryTest {
         User user = new User(dto1);
         userRepository.save(user);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY, 500, 1L);
-        Content content = new Content(dto, category);
+                "What is java?", "text", ContentPayType.PAY, 500, Category.JAVA);
+        Content content = new Content(dto);
         contentRepository.save(content);
 
         ReviewRegisterReqDto dto2 = new ReviewRegisterReqDto(ReviewType.LIKE, "I LIKE THIS CONTENT");
@@ -93,11 +84,9 @@ class ReviewRepositoryTest {
         User user = new User(dto1);
         userRepository.save(user);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY, 500, 1L);
-        Content content = new Content(dto, category);
+                "What is java?", "text", ContentPayType.PAY, 500, Category.JAVA);
+        Content content = new Content(dto);
         contentRepository.save(content);
 
         ReviewRegisterReqDto dto2 = new ReviewRegisterReqDto(ReviewType.LIKE, "I LIKE THIS CONTENT");
@@ -117,11 +106,9 @@ class ReviewRepositoryTest {
         User user = new User(dto1);
         userRepository.save(user);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY, 500, 1L);
-        Content content = new Content(dto, category);
+                "What is java?", "text", ContentPayType.PAY, 500, Category.JAVA);
+        Content content = new Content(dto);
         contentRepository.save(content);
 
         ReviewRegisterReqDto dto2 = new ReviewRegisterReqDto(ReviewType.LIKE, "I LIKE THIS CONTENT");
