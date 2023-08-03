@@ -7,7 +7,6 @@ import soon.devspacexbackend.darkmatter.domain.ChangeType;
 import soon.devspacexbackend.darkmatter.domain.DarkMatterHistory;
 import soon.devspacexbackend.darkmatter.infrastructure.persistence.DarkMatterHistoryRepository;
 import soon.devspacexbackend.darkmatter.presentation.dto.DarkMatterGetHistoryResDto;
-import soon.devspacexbackend.review.domain.Review;
 import soon.devspacexbackend.user.domain.User;
 
 import java.util.List;
