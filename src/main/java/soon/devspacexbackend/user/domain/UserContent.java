@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentGetType;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
+import soon.devspacexbackend.user.event.UserContentEvent;
 import soon.devspacexbackend.user.presentation.dto.UserHistoryGetContentResDto;
 import soon.devspacexbackend.utils.CreatedTimeEntity;
 
@@ -45,6 +46,12 @@ public class UserContent extends CreatedTimeEntity {
         this.modifiedAt = LocalDateTime.now();
     }
 
+    public UserContent(UserContentEvent event) {
+        this.user = event.getUser();
+        this.content = event.getContent();
+        this.type = event.getBehaviorType();
+    }
+
     public User getUser() {
         return this.user;
     }
@@ -61,5 +68,9 @@ public class UserContent extends CreatedTimeEntity {
 
     public void setModifiedAtNow() {
         this.modifiedAt = LocalDateTime.now();
+    }
+
+    public Content getContent() {
+        return this.content;
     }
 }
