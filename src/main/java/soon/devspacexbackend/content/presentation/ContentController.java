@@ -68,8 +68,9 @@ public class ContentController {
             if (!loginUser.isTypeAdmin()) {
                 throw new ApiException(CustomErrorCode.NO_AUTH_TO_ACCESS_API);
             }
+            return contentServiceImpl.getTop3DisLikedContents();
         }
-        return contentServiceImpl.getTop3ContentsByReviewType(type);
+        return contentServiceImpl.getTop3LikedContents();
     }
 
     @PatchMapping("/{contentId}")
