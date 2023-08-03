@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
-import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.config.QuerydslConfig;
 import soon.devspacexbackend.series.domain.Series;
 import soon.devspacexbackend.series.domain.SeriesType;
@@ -27,9 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SeriesRepositoryTest {
 
     @Autowired
-    CategoryRepository categoryRepository;
-
-    @Autowired
     UserRepository userRepository;
 
     @Autowired
@@ -41,11 +36,7 @@ class SeriesRepositoryTest {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
         userRepository.save(user);
 
-        CategoryRegisterReqDto dto1 = new CategoryRegisterReqDto("JAVA");
-        Category category = new Category(dto1);
-        categoryRepository.save(category);
-
-        SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, 1L);
+        SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, Category.JAVA);
         Series series = new Series(dto2, user);
 
         seriesRepository.save(series);
@@ -59,11 +50,7 @@ class SeriesRepositoryTest {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
         userRepository.save(user);
 
-        CategoryRegisterReqDto dto1 = new CategoryRegisterReqDto("JAVA");
-        Category category = new Category(dto1);
-        categoryRepository.save(category);
-
-        SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, 1L);
+        SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, Category.JAVA);
         Series series = new Series(dto2, user);
         seriesRepository.save(series);
 
@@ -76,12 +63,8 @@ class SeriesRepositoryTest {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
         userRepository.save(user);
 
-        CategoryRegisterReqDto dto1 = new CategoryRegisterReqDto("JAVA");
-        Category category = new Category(dto1);
-        categoryRepository.save(category);
-
         IntStream.range(1, 12).forEach(i -> {
-            SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto("series no " + i, SeriesType.FREE, 1L);
+            SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto("series no " + i, SeriesType.FREE, Category.JAVA);
             Series series = new Series(dto2, user);
             seriesRepository.save(series);
         });

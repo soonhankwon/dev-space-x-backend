@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
-import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.config.QuerydslConfig;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentGetType;
@@ -37,19 +35,13 @@ class ContentRepositoryCustomTest {
     UserRepository userRepository;
 
     @Autowired
-    CategoryRepository categoryRepository;
-
-    @Autowired
     ReviewRepository reviewRepository;
 
     @Test
     @DisplayName("TOP3 컨텐츠 조회 레포지토리 테스트 : 리뷰 타입에 따라")
     void findTop3ContentsByReviewType() {
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
-
         LongStream.range(1, 5).forEach(i -> {
-            Content content = new Content(new ContentRegisterReqDto("java?" + i, "text text", ContentPayType.FREE, 0, 1L), category);
+            Content content = new Content(new ContentRegisterReqDto("java?" + i, "text text", ContentPayType.FREE, 0, Category.JAVA));
             contentRepository.save(content);
         });
 

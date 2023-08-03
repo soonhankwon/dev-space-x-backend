@@ -3,7 +3,6 @@ package soon.devspacexbackend.series.domain;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.content.domain.ContentPayType;
 import soon.devspacexbackend.series.presentation.dto.SeriesContentRegisterReqDto;
 import soon.devspacexbackend.series.presentation.dto.SeriesGetResDto;
@@ -21,9 +20,8 @@ class SeriesTest {
     @DisplayName("시리즈 생성 테스트")
     void createSeries() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
-        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, 1L);
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto(new SeriesRegisterReqDto("series no 2", SeriesType.FREE, null), category);
+        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, Category.JAVA);
+        SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, Category.CS);
 
         Series series1 = new Series(dto1, user);
         Series series2 = new Series(dto2, user);
@@ -36,7 +34,7 @@ class SeriesTest {
     @DisplayName("시리즈 이름 getter 테스트")
     void getName() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
-        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, 1L);
+        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, Category.JAVA);
         Series series1 = new Series(dto1, user);
 
         assertThat(series1.getName()).isEqualTo("series no 1");
@@ -46,19 +44,17 @@ class SeriesTest {
     @DisplayName("시리즈 카테고리 getter 테스트")
     void getCategory() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto(new SeriesRegisterReqDto("series no 2", SeriesType.FREE, null), category);
+        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto("series no 2", SeriesType.FREE, Category.JAVA);
         Series series1 = new Series(dto1, user);
 
-        assertThat(series1.getCategory()).isEqualTo(category);
+        assertThat(series1.getCategory()).isEqualTo(Category.JAVA);
     }
 
     @Test
     @DisplayName("시리즈 조회 응답 DTO 로 변환 테스트")
     void convertSeriesGetResDto() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto(new SeriesRegisterReqDto("series no 2", SeriesType.FREE, null), category);
+        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto("series no 2", SeriesType.FREE, Category.JAVA);
         Series series1 = new Series(dto1, user);
 
         SeriesGetResDto res = series1.convertSeriesGetResDto();
@@ -71,9 +67,8 @@ class SeriesTest {
     @DisplayName("시리즈 타입과 컨텐츠 결제 타입 매칭 검증 테스트")
     void validateSeriesTypeMatchContentPayType() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto(new SeriesRegisterReqDto("series no 1", SeriesType.FREE, null), category);
-        SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto(new SeriesRegisterReqDto("series no 2", SeriesType.PAY, null), category);
+        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto("series no 2", SeriesType.FREE, Category.JAVA);
+        SeriesRegisterReqDto dto2 = new SeriesRegisterReqDto("series no 2", SeriesType.PAY, Category.JAVA);
         Series freeSeries = new Series(dto1, user);
         Series paySeries = new Series(dto2, user);
 
@@ -90,14 +85,13 @@ class SeriesTest {
     @DisplayName("시리즈 업데이트 테스트")
     void update() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto(new SeriesRegisterReqDto("series no 1", SeriesType.FREE, null), category);
+        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto("series no 2", SeriesType.FREE, Category.JAVA);
         Series series = new Series(dto1, user);
-        SeriesUpdateReqDto dto2 = new SeriesUpdateReqDto("", SeriesStatus.COMPLETED, SeriesType.FREE, 1L);
+        SeriesUpdateReqDto dto2 = new SeriesUpdateReqDto("", SeriesStatus.COMPLETED, SeriesType.FREE, Category.JAVA);
 
         series.update(dto2);
 
-        assertThat(series.getName()).isEqualTo("series no 1");
+        assertThat(series.getName()).isEqualTo("series no 2");
     }
 
     @Test
@@ -105,22 +99,9 @@ class SeriesTest {
     void validateAuthWithUser() {
         User user1 = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
         User user2 = new User(new UserSignupReqDto("dif@space.com", "tester", "1234"));
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto(new SeriesRegisterReqDto("series no 1", SeriesType.FREE, null), category);
+        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto("series no 1", SeriesType.FREE, Category.JAVA);
         Series series = new Series(dto1, user1);
 
         assertThatThrownBy(() -> series.validateAuthWithUser(user2)).isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    @DisplayName("시리즈의 카테고리 ID가 같은지 : 같으면 true")
-    void isCategoryIdSame() {
-        User user1 = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        SeriesRegisterReqDto dto1 = new SeriesRegisterReqDto(new SeriesRegisterReqDto("series no 1", SeriesType.FREE, 1L), category);
-        Series series = new Series(dto1, user1);
-
-        // Generated Value -> DB 저장 후 ID 확인 가능
-        assertThatThrownBy(() -> series.isCategoryIdSame(1L)).isInstanceOf(NullPointerException.class);
     }
 }

@@ -8,8 +8,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
-import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.config.QuerydslConfig;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentPayType;
@@ -32,19 +30,14 @@ class ContentRepositoryTest {
     ContentRepository contentRepository;
 
     @Autowired
-    CategoryRepository categoryRepository;
-
-    @Autowired
     SeriesRepository seriesRepository;
 
     @Test
     @DisplayName("컨텐츠 저장 레포지토리 테스트")
     void save() {
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY,500, 1L);
-        Content content = new Content(dto, category);
+                "What is java?", "text", ContentPayType.PAY,500, Category.JAVA);
+        Content content = new Content(dto);
 
         contentRepository.save(content);
 
@@ -54,11 +47,8 @@ class ContentRepositoryTest {
     @Test
     @DisplayName("컨텐츠 전체 조회 레포지토리 테스트")
     void findAll() {
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
-
         IntStream.range(0, 10).forEach(i -> {
-            Content content = new Content(new ContentRegisterReqDto("java?" + i, "text", ContentPayType.PAY, 500, 1L), category, null);
+            Content content = new Content(new ContentRegisterReqDto("java?" + i, "text", ContentPayType.PAY, 500, Category.JAVA), null);
             contentRepository.save(content);
         });
 
@@ -70,15 +60,12 @@ class ContentRepositoryTest {
     @Test
     @DisplayName("시리즈의 컨텐츠 전체 조회 테스트 및 페이지네이션 검증")
     void findAllBySeries() {
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
-
-        SeriesRegisterReqDto dto = new SeriesRegisterReqDto("effective java series1", SeriesType.FREE, 1L);
+        SeriesRegisterReqDto dto = new SeriesRegisterReqDto("effective java series1", SeriesType.FREE, Category.JAVA);
         Series series = new Series(dto, null);
         seriesRepository.save(series);
 
         IntStream.range(0, 21).forEach(i -> {
-            Content content = new Content(new ContentRegisterReqDto("java?" + i, "text", ContentPayType.PAY, 500, null), category, series);
+            Content content = new Content(new ContentRegisterReqDto("java?" + i, "text", ContentPayType.PAY, 500, Category.JAVA), series);
             contentRepository.save(content);
         });
 

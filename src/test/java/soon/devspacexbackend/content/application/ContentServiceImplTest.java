@@ -10,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
-import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentGetType;
 import soon.devspacexbackend.content.domain.ContentPayType;
@@ -36,9 +34,6 @@ import static org.mockito.Mockito.*;
 class ContentServiceImplTest {
 
     @Mock
-    CategoryRepository categoryRepository;
-
-    @Mock
     ContentRepository contentRepository;
 
     @Mock
@@ -53,10 +48,8 @@ class ContentServiceImplTest {
         UserSignupReqDto dto1 = new UserSignupReqDto("dev@space.com", "tester", "1234");
         User user = new User(dto1);
 
-        ContentRegisterReqDto dto2 = new ContentRegisterReqDto("title", "text", ContentPayType.PAY, 500, 1L);
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        Content content = new Content(dto2, category);
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        ContentRegisterReqDto dto2 = new ContentRegisterReqDto("title", "text", ContentPayType.PAY, 500, Category.JAVA);
+        Content content = new Content(dto2);
 
         contentServiceImpl.registerContent(dto2, user);
 
@@ -67,9 +60,8 @@ class ContentServiceImplTest {
     @Test
     @DisplayName("컨텐츠 전체조회 서비스 테스트")
     void getAllContents() {
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        List<Content> contents = List.of(new Content(new ContentRegisterReqDto("title1", "01234567891012", ContentPayType.FREE, 0, 1L), category),
-                new Content(new ContentRegisterReqDto("title2", "text", ContentPayType.FREE, 0, 1L), category));
+        List<Content> contents = List.of(new Content(new ContentRegisterReqDto("title1", "01234567891012", ContentPayType.FREE, 0, Category.JAVA)),
+                new Content(new ContentRegisterReqDto("title2", "text", ContentPayType.FREE, 0, Category.JAVA)));
         Page<Content> pageContents = new PageImpl<>(contents, Pageable.ofSize(10), contents.size());
 
         when(contentRepository.findAll(Pageable.ofSize(10))).thenReturn(pageContents);
@@ -84,14 +76,13 @@ class ContentServiceImplTest {
     @Test
     @DisplayName("TOP3 컨텐츠 조회 서비스 테스트")
     void getTop3ContentsByReviewType() {
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        List<Content> contents = List.of(new Content(new ContentRegisterReqDto("title1", "text1234567890", ContentPayType.FREE, 0, 1L), category),
-                new Content(new ContentRegisterReqDto("title2", "text2", ContentPayType.FREE, 0, 1L), category),
-                new Content(new ContentRegisterReqDto("title3", "text3", ContentPayType.FREE, 0, 1L), category));
+        List<Content> contents = List.of(new Content(new ContentRegisterReqDto("title1", "text1234567890", ContentPayType.FREE, 0, Category.JAVA)),
+                new Content(new ContentRegisterReqDto("title2", "text2", ContentPayType.FREE, 0, Category.JAVA)),
+                new Content(new ContentRegisterReqDto("title3", "text3", ContentPayType.FREE, 0, Category.JAVA)));
 
         when(contentRepository.findTop3ContentsByReviewType(ReviewType.LIKE)).thenReturn(contents);
 
-        List<ContentGetResDto> res = contentServiceImpl.getTop3ContentsByReviewType(ReviewType.LIKE);
+        List<ContentGetResDto> res = contentServiceImpl.getTop3LikedContents();
 
         assertThat(res.get(0).getText().length()).isLessThan(11);
         assertThat(res.get(0).getTitle()).isEqualTo("title1");
@@ -103,8 +94,7 @@ class ContentServiceImplTest {
     void getContent() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
         User contentProvider = new User(new UserSignupReqDto("dev1@space.com", "provider", "1234"));
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        Content content = new Content(new ContentRegisterReqDto("title1", "text1234567890", ContentPayType.FREE, 0, 1L), category);
+        Content content = new Content(new ContentRegisterReqDto("title1", "text1234567890", ContentPayType.FREE, 0, Category.JAVA));
 
         when(contentRepository.findById(1L)).thenReturn(Optional.of(content));
         when(userContentRepository.findUserContentByContentAndType(content, BehaviorType.POST)).thenReturn(Optional.of(new UserContent(contentProvider, content, BehaviorType.POST)));
@@ -121,13 +111,12 @@ class ContentServiceImplTest {
     @DisplayName("컨텐츠 업데이트 서비스 테스트")
     void updateContent() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        Content content = new Content(new ContentRegisterReqDto("title1", "text1234567890", ContentPayType.FREE, 0, 1L), category);
+        Content content = new Content(new ContentRegisterReqDto("title1", "text1234567890", ContentPayType.FREE, 0, Category.JAVA));
 
         when(contentRepository.findById(1L)).thenReturn(Optional.of(content));
         when(userContentRepository.existsUserContentByContentAndUserAndType(content, user, BehaviorType.POST)).thenReturn(true);
 
-        ContentUpdateReqDto dto = new ContentUpdateReqDto("title2", "text", ContentPayType.FREE, 0);
+        ContentUpdateReqDto dto = new ContentUpdateReqDto("title2", "text", ContentPayType.FREE, 0, Category.JAVA);
         contentServiceImpl.updateContent(1L, dto, user);
 
         assertThat(content.convertContentGetResDto(ContentGetType.PREVIEW).getTitle()).isEqualTo("title2");
@@ -138,8 +127,7 @@ class ContentServiceImplTest {
     @DisplayName("컨텐츠 삭제 서비스 테스트")
     void deleteContent() {
         User user = new User(new UserSignupReqDto("dev@space.com", "tester", "1234"));
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        Content content = new Content(new ContentRegisterReqDto("title1", "text1234567890", ContentPayType.FREE, 0, 1L), category);
+        Content content = new Content(new ContentRegisterReqDto("title1", "text1234567890", ContentPayType.FREE, 0, Category.JAVA));
 
         when(contentRepository.findById(1L)).thenReturn(Optional.of(content));
         when(userContentRepository.findUserContentByContentAndUserAndType(content, user, BehaviorType.POST))

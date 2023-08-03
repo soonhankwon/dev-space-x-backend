@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
-import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
 import soon.devspacexbackend.config.QuerydslConfig;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentPayType;
@@ -33,9 +31,6 @@ class UserContentRepositoryTest {
     ContentRepository contentRepository;
 
     @Autowired
-    CategoryRepository categoryRepository;
-
-    @Autowired
     UserContentRepository userContentRepository;
 
     @Test
@@ -45,11 +40,9 @@ class UserContentRepositoryTest {
         User user = new User(dto1);
         userRepository.save(user);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY,500, 1L);
-        Content content = new Content(dto2, category);
+                "What is java?", "text", ContentPayType.PAY,500, Category.JAVA);
+        Content content = new Content(dto2);
         contentRepository.save(content);
 
         UserContent userContent = new UserContent(user, content, BehaviorType.GET);
@@ -66,11 +59,9 @@ class UserContentRepositoryTest {
         User user = new User(dto1);
         userRepository.save(user);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY,500, 1L);
-        Content content = new Content(dto2, category);
+                "What is java?", "text", ContentPayType.PAY,500, Category.JAVA);
+        Content content = new Content(dto2);
         contentRepository.save(content);
 
         UserContent userContent = new UserContent(user, content, BehaviorType.GET);
@@ -88,11 +79,9 @@ class UserContentRepositoryTest {
         User user = new User(dto1);
         userRepository.save(user);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY,500, 1L);
-        Content content = new Content(dto2, category);
+                "What is java?", "text", ContentPayType.PAY,500, Category.JAVA);
+        Content content = new Content(dto2);
         contentRepository.save(content);
 
         UserContent userContent = new UserContent(user, content, BehaviorType.GET);
@@ -113,11 +102,9 @@ class UserContentRepositoryTest {
         userRepository.save(user1);
         userRepository.save(user2);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto3 = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY,500, 1L);
-        Content content = new Content(dto3, category);
+                "What is java?", "text", ContentPayType.PAY,500, Category.JAVA);
+        Content content = new Content(dto3);
         contentRepository.save(content);
 
         UserContent userContent1 = new UserContent(user1, content, BehaviorType.GET);
@@ -137,11 +124,9 @@ class UserContentRepositoryTest {
         User user = new User(dto1);
         userRepository.save(user);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY,500, 1L);
-        Content content = new Content(dto2, category);
+                "What is java?", "text", ContentPayType.PAY,500, Category.JAVA);
+        Content content = new Content(dto2);
         contentRepository.save(content);
 
         UserContent userContent = new UserContent(user, content, BehaviorType.GET);
@@ -159,14 +144,12 @@ class UserContentRepositoryTest {
         User user1 = new User(dto1);
         userRepository.save(user1);
 
-        Category category = new Category(new CategoryRegisterReqDto("JAVA"));
-        categoryRepository.save(category);
         ContentRegisterReqDto dto2 = new ContentRegisterReqDto(
-                "What is java?", "text", ContentPayType.PAY,500, 1L);
+                "What is java?", "text", ContentPayType.PAY,500, Category.JAVA);
         ContentRegisterReqDto dto3 = new ContentRegisterReqDto(
-                "What is spring?", "text", ContentPayType.PAY,500, 1L);
-        Content content1 = new Content(dto2, category);
-        Content content2 = new Content(dto3, category);
+                "What is spring?", "text", ContentPayType.PAY,500, Category.JAVA);
+        Content content1 = new Content(dto2);
+        Content content2 = new Content(dto3);
         contentRepository.save(content1);
         contentRepository.save(content2);
 
