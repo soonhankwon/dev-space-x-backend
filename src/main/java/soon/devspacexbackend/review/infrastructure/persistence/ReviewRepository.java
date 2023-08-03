@@ -16,4 +16,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Optional<Review> findReviewByUser(User loginUser);
 
     Optional<Review> findReviewByIdAndUser(Long id, User loginUser);
+
+    void deleteAllByUser(User user);
 }
