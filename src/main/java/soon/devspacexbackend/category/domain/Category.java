@@ -1,39 +1,21 @@
 package soon.devspacexbackend.category.domain;
 
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import soon.devspacexbackend.category.presentation.dto.CategoryGetResDto;
-import soon.devspacexbackend.category.presentation.dto.CategoryRegisterReqDto;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+@AllArgsConstructor
+@Getter
+public enum Category {
 
-@NoArgsConstructor
-@EqualsAndHashCode
-@Entity
-public class Category {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
-
-    public Category(CategoryRegisterReqDto dto) {
-        this.name = dto.getName().trim().toUpperCase();
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public CategoryGetResDto convertCategoryGetResDto() {
-        return new CategoryGetResDto(this.id, this.name);
-    }
-
-    public boolean isIdSame(Long categoryId) {
-        return this.id.equals(categoryId);
-    }
+    JAVA,
+    SPRING,
+    DATABASE,
+    ALGORITHM,
+    ORM,
+    CS,
+    BACKEND,
+    REDIS,
+    DOCKER,
+    FRONTEND,
+    JAVASCRIPT
 }
