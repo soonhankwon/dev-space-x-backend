@@ -7,7 +7,6 @@ import org.hibernate.annotations.BatchSize;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.exception.ApiException;
 import soon.devspacexbackend.exception.CustomErrorCode;
-import soon.devspacexbackend.review.domain.Review;
 import soon.devspacexbackend.user.presentation.dto.UserHistoryGetContentResDto;
 import soon.devspacexbackend.user.presentation.dto.UserResignReqDto;
 import soon.devspacexbackend.user.presentation.dto.UserSignupReqDto;
@@ -42,13 +41,9 @@ public class User extends CreatedTimeEntity {
 
     private Long exp;
 
-    @BatchSize(size = 100)
+    @BatchSize(size = 1000)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserContent> userContents;
-
-    @BatchSize(size = 100)
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> review;
 
     public User(UserSignupReqDto dto) {
         this.email = dto.getEmail();
@@ -120,5 +115,9 @@ public class User extends CreatedTimeEntity {
 
     protected UserType getUserType() {
         return this.userType;
+    }
+
+    public void addUserContent(UserContent userContent) {
+        this.userContents.add(userContent);
     }
 }
