@@ -2,13 +2,16 @@ package soon.devspacexbackend.content.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import soon.devspacexbackend.category.domain.Category;
-import soon.devspacexbackend.category.infrastructure.persistence.CategoryRepository;
 import soon.devspacexbackend.content.domain.Content;
 import soon.devspacexbackend.content.domain.ContentGetType;
 import soon.devspacexbackend.content.infrastructure.persistence.ContentRepository;
@@ -24,11 +27,13 @@ import soon.devspacexbackend.review.domain.ReviewType;
 import soon.devspacexbackend.user.domain.BehaviorType;
 import soon.devspacexbackend.user.domain.User;
 import soon.devspacexbackend.user.domain.UserContent;
-import soon.devspacexbackend.user.event.UserContentGetEvent;
+import soon.devspacexbackend.user.event.UserContentEvent;
 import soon.devspacexbackend.user.infrastructure.persistence.UserContentRepository;
+import soon.devspacexbackend.utils.TransactionService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,24 +42,39 @@ import java.util.stream.Collectors;
 public class ContentServiceImpl implements ContentService {
 
     private final ContentRepository contentRepository;
-    private final CategoryRepository categoryRepository;
     private final UserContentRepository userContentRepository;
     private final DarkMatterHistoryRepository darkMatterHistoryRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final RedissonClient redissonClient;
+    private final TransactionService transactionService;
 
     @Override
-    @Transactional
     public void registerContent(ContentRegisterReqDto dto, User loginUser) {
-        Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new ApiException(CustomErrorCode.CATEGORY_NOT_EXIST));
-
-        Content content = new Content(dto, category);
-        contentRepository.save(content);
-        saveContentPostRecordByUser(loginUser, content);
+        RLock lock = redissonClient.getLock(String.valueOf(loginUser.getId()));
+        try {
+            boolean available = lock.tryLock(0, 1, TimeUnit.SECONDS);
+            if(!available) {
+                throw new ApiException(CustomErrorCode.CANT_GET_LOCK);
+            }
+            log.info("loginUser lock={}", lock);
+            Content content = new Content(dto);
+            transactionService.executeAsTransactional(() -> {
+                contentRepository.save(content);
+                saveContentPostRecordByUser(loginUser, content);
+                return null;
+            });
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            lock.unlock();
+            log.info("unlock={}", lock);
+        }
     }
 
     private void saveContentPostRecordByUser(User loginUser, Content content) {
-        userContentRepository.save(new UserContent(loginUser, content, BehaviorType.POST));
+        UserContent userContent = new UserContent(loginUser, content, BehaviorType.POST);
+        userContent.setModifiedAtNow();
+        loginUser.addUserContent(userContent);
     }
 
     @Override
@@ -67,11 +87,40 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public List<ContentGetResDto> getTop3ContentsByReviewType(ReviewType type) {
-        return contentRepository.findTop3ContentsByReviewType(type)
+    @Transactional(readOnly = true)
+    @Cacheable(value = "top3LikedContents", cacheManager = "cacheManager")
+    public List<ContentGetResDto> getTop3LikedContents() {
+        return contentRepository.findTop3ContentsByReviewType(ReviewType.LIKE)
                 .stream()
                 .map(i -> i.convertContentGetResDto(ContentGetType.PREVIEW))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "top3DisLikedContents", cacheManager = "cacheManager")
+    public List<ContentGetResDto> getTop3DisLikedContents() {
+        return contentRepository.findTop3ContentsByReviewType(ReviewType.DISLIKE)
+                .stream()
+                .map(i -> i.convertContentGetResDto(ContentGetType.PREVIEW))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void updateCacheTop3ContentsByReviewType() {
+        putCacheTop3LikedContents();
+        putCacheTop3DisLikedContents();
+    }
+
+    @CachePut(value = "top3LikedContents", cacheManager = "cacheManager")
+    public void putCacheTop3LikedContents() {
+        log.info("put cache Top3 Liked Contents");
+    }
+
+    @CachePut(value = "top3DisLikedContents", cacheManager = "cacheManager")
+    public void putCacheTop3DisLikedContents() {
+        log.info("put cache Top3 DisLiked Contents");
     }
 
     @Override
@@ -102,17 +151,19 @@ public class ContentServiceImpl implements ContentService {
     }
 
     private void saveContentGetRecordByUser(User loginUser, Content content) {
-        userContentRepository.save(new UserContent(loginUser, content, BehaviorType.GET));
+        UserContent userContent = new UserContent(loginUser, content, BehaviorType.GET);
+        userContent.setModifiedAtNow();
+        loginUser.addUserContent(userContent);
     }
 
     private boolean isUserAlreadyHadContent(User loginUser, Content content) {
         if (hasUserContentPostRecord(content, loginUser)) {
-            applicationEventPublisher.publishEvent(new UserContentGetEvent(loginUser, content, BehaviorType.POST));
+            applicationEventPublisher.publishEvent(new UserContentEvent(loginUser, content, BehaviorType.POST));
             return true;
         }
 
         if (hasUserContentGetRecord(content, loginUser)) {
-            applicationEventPublisher.publishEvent(new UserContentGetEvent(loginUser, content, BehaviorType.GET));
+            applicationEventPublisher.publishEvent(new UserContentEvent(loginUser, content, BehaviorType.GET));
             return true;
         }
         return false;
@@ -135,14 +186,7 @@ public class ContentServiceImpl implements ContentService {
         if (!hasUserContentPostRecord(content, loginUser)) {
             throw new ApiException(CustomErrorCode.USER_POST_CONTENT_NOT_EXIST);
         }
-
-        if (dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new ApiException(CustomErrorCode.CATEGORY_NOT_EXIST));
-            content.update(dto, category);
-        } else {
-            content.update(dto, null);
-        }
+        content.update(dto);
     }
 
     @Override
