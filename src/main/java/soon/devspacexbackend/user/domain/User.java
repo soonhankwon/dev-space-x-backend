@@ -19,7 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@Table(name = "`user`")
+@Table(name = "`user`", indexes = {
+        @Index(name = "fk_user_email_idx", columnList = "email")})
 public class User extends CreatedTimeEntity {
 
     private static final Long MIN_POINT = 0L;
