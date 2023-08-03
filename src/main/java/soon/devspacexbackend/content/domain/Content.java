@@ -2,6 +2,7 @@ package soon.devspacexbackend.content.domain;
 
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import soon.devspacexbackend.category.domain.Category;
 import soon.devspacexbackend.content.presentation.dto.ContentGetResDto;
 import soon.devspacexbackend.content.presentation.dto.ContentRegisterReqDto;
@@ -12,14 +13,15 @@ import soon.devspacexbackend.user.domain.UserContent;
 import soon.devspacexbackend.utils.BaseTimeEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "content", indexes = {
-        @Index (name = "fk_content_series_idx", columnList = "series_id"),
-        @Index (name = "fk_content_category_idx", columnList = "category_id")})
+        @Index(name = "fk_content_series_idx", columnList = "series_id"),
+        @Index(name = "fk_content_category_idx", columnList = "category")})
 public class Content extends BaseTimeEntity {
 
     public static final int FREE_MATTER_VALUE = 0;
@@ -43,28 +45,24 @@ public class Content extends BaseTimeEntity {
     @JoinColumn(name = "series_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Series series;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @Enumerated(EnumType.STRING)
     private Category category;
 
+    @BatchSize(size = 1000)
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserContent> userContents;
+    private final List<UserContent> userContents = new ArrayList<>();
 
-    public Content(ContentRegisterReqDto dto, Category category) {
-        this(dto, category, null);
+    public Content(ContentRegisterReqDto dto) {
+        this(dto, null);
     }
 
     public Content(ContentRegisterReqDto dto, Series series) {
-        this(dto, series.getCategory(), series);
-    }
-
-    public Content(ContentRegisterReqDto dto, Category category, Series series) {
         this.title = dto.getTitle();
         this.text = dto.getText();
         this.payType = dto.getPayType();
         payType.validateTypeMatchDarkMatter(dto.getDarkMatter());
         this.darkMatter = dto.getDarkMatter();
-        this.category = category;
+        this.category = dto.getCategory();
         this.series = series;
     }
 
@@ -73,7 +71,7 @@ public class Content extends BaseTimeEntity {
         this.text = dto.getText();
         this.payType = dto.getPayType();
         this.darkMatter = dto.getDarkMatter();
-        this.series  = series;
+        this.series = series;
         this.category = series.getCategory();
     }
 
@@ -83,11 +81,11 @@ public class Content extends BaseTimeEntity {
 
     public ContentGetResDto convertContentGetResDto(ContentGetType type) {
         String seriesName = isNotSeriesContent() ? null : this.series.getName();
-        if(isTextLengthUnderEleven()) {
-            return new ContentGetResDto(this.id, this.category.getName(), this.title, this.text, this.payType, this.darkMatter, seriesName, this.getCreatedAt(), this.getModifiedAt());
+        if (isTextLengthUnderEleven()) {
+            return new ContentGetResDto(this.id, this.category.name(), this.title, this.text, this.payType, this.darkMatter, seriesName, this.getCreatedAt(), this.getModifiedAt());
         }
         String viewText = isGetTypePreview(type) ? this.text.substring(0, 10) : this.text;
-        return new ContentGetResDto(this.id, this.category.getName(), this.title, viewText, this.payType, this.darkMatter, seriesName, this.getCreatedAt(), this.getModifiedAt());
+        return new ContentGetResDto(this.id, this.category.name(), this.title, viewText, this.payType, this.darkMatter, seriesName, this.getCreatedAt(), this.getModifiedAt());
     }
 
     private boolean isNotSeriesContent() {
@@ -106,14 +104,12 @@ public class Content extends BaseTimeEntity {
         return this.payType == ContentPayType.PAY;
     }
 
-    public void update(ContentUpdateReqDto dto, Category category) {
+    public void update(ContentUpdateReqDto dto) {
         this.title = dto.getTitle();
         this.text = dto.getText();
         this.payType = dto.getPayType();
         payType.validateTypeMatchDarkMatter(dto.getDarkMatter());
         this.darkMatter = dto.getDarkMatter();
-        if (category != null) {
-            this.category = category;
-        }
+        this.category = dto.getCategory();
     }
 }
