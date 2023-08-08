@@ -2,7 +2,6 @@ package soon.devspacexbackend.content.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -30,10 +29,10 @@ import soon.devspacexbackend.user.domain.UserContent;
 import soon.devspacexbackend.user.event.UserContentEvent;
 import soon.devspacexbackend.user.infrastructure.persistence.UserContentRepository;
 import soon.devspacexbackend.utils.TransactionService;
+import soon.devspacexbackend.utils.template.AbstractRedissonLockTemplate;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,22 +49,18 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public void registerContent(ContentRegisterReqDto dto, User loginUser) {
-        RLock lock = redissonClient.getLock(String.valueOf(loginUser.getId()));
-        try {
-            boolean available = lock.tryLock(0, 1, TimeUnit.SECONDS);
-            if(!available) {
-                throw new ApiException(CustomErrorCode.CANT_GET_LOCK);
+        AbstractRedissonLockTemplate<ContentRegisterReqDto> template = new AbstractRedissonLockTemplate<>(redissonClient) {
+            @Override
+            protected void call(ContentRegisterReqDto dto, User loginUser) {
+                Content content = new Content(dto);
+                transactionService.executeAsTransactional(() -> {
+                    contentRepository.save(content);
+                    saveContentPostRecordByUser(loginUser, content);
+                    return null;
+                });
             }
-            log.info("loginUser lock={}", lock);
-            Content content = new Content(dto);
-            transactionService.executeAsTransactional(() -> {
-                contentRepository.save(content);
-                saveContentPostRecordByUser(loginUser, content);
-                return null;
-            });
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        };
+        template.executeLock(dto, loginUser);
     }
 
     private void saveContentPostRecordByUser(User loginUser, Content content) {
