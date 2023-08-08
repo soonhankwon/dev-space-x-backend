@@ -65,9 +65,6 @@ public class ContentServiceImpl implements ContentService {
             });
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        } finally {
-            lock.unlock();
-            log.info("unlock={}", lock);
         }
     }
 
